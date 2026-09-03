@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { authService } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import { Leaf } from 'lucide-react'
 import LanguageSwitcher from '../components/LanguageSwitcher'
@@ -10,6 +10,7 @@ const DISTRICTS = ['Ahmedabad','Rajkot','Junagadh','Bhavnagar','Amreli','Surendr
 
 export default function RegisterPage() {
   const { t } = useTranslation()
+  const { register } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({
     name: '', phone: '', password: '', village: '', district: 'Ahmedabad',
@@ -23,9 +24,13 @@ export default function RegisterPage() {
     e.preventDefault()
     setLoading(true)
     try {
-      await authService.register(form)
-      toast.success('Account created! Please login.')
-      navigate('/login')
+      await register({
+        ...form,
+        email: form.email.trim() || undefined,
+        village: form.village.trim() || undefined,
+      })
+      toast.success('Account created!')
+      navigate('/dashboard')
     } catch (err: any) {
       toast.error(err.response?.data?.detail || 'Registration failed')
     } finally {

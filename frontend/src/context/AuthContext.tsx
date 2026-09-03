@@ -5,6 +5,7 @@ import { authService } from '../services/api'
 
 interface AuthContextType extends AuthState {
   login: (phone: string, password: string) => Promise<void>
+  register: (data: object) => Promise<void>
   logout: () => void
   updateUser: (user: User) => void
 }
@@ -34,8 +35,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (phone: string, password: string) => {
     const res = await authService.login(phone, password)
-    const { access_token, user_id, name, role } = res.data
-    const user: User = { id: user_id, name, phone, role, language: 'gu', is_active: true, created_at: new Date().toISOString() }
+    const { access_token, user_id, name, role, language } = res.data
+    const user: User = { id: user_id, name, phone, role, language: language || 'gu', is_active: true, created_at: new Date().toISOString() }
+    localStorage.setItem('km_token', access_token)
+    localStorage.setItem('km_user', JSON.stringify(user))
+    setState({ user, token: access_token, isAuthenticated: true })
+  }
+
+  const register = async (data: object) => {
+    const res = await authService.register(data)
+    const { access_token, user_id, name, role, language } = res.data
+    const registration = data as { phone?: string }
+    const user: User = { id: user_id, name, phone: registration.phone || '', role, language: language || 'gu', is_active: true, created_at: new Date().toISOString() }
     localStorage.setItem('km_token', access_token)
     localStorage.setItem('km_user', JSON.stringify(user))
     setState({ user, token: access_token, isAuthenticated: true })
@@ -53,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
