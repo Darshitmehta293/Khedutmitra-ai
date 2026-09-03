@@ -15,7 +15,8 @@ import AIAssistantPage from './pages/AIAssistantPage'
 import DemoPage from './pages/DemoPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isInitializing } = useAuth()
+  if (isInitializing) return null
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />
 }
 

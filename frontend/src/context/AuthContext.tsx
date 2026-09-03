@@ -4,6 +4,7 @@ import { User, AuthState } from '../types'
 import { authService } from '../services/api'
 
 interface AuthContextType extends AuthState {
+  isInitializing: boolean
   login: (phone: string, password: string) => Promise<void>
   register: (data: object) => Promise<void>
   logout: () => void
@@ -13,6 +14,7 @@ interface AuthContextType extends AuthState {
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [isInitializing, setIsInitializing] = useState(true)
   const [state, setState] = useState<AuthState>({
     user: null,
     token: null,
@@ -31,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('km_user')
       }
     }
+    setIsInitializing(false)
   }, [])
 
   const login = async (phone: string, password: string) => {
@@ -64,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ ...state, isInitializing, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
