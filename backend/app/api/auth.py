@@ -11,8 +11,32 @@ from app.schemas.schemas import RegisterRequest, LoginRequest, TokenResponse, Us
 from app.core.security import hash_password, verify_password, create_access_token
 from app.api.deps import get_current_user
 from app.core.logging import logger
+from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+async def _ensure_demo_user(payload: LoginRequest, db: AsyncSession) -> User | None:
+    """Create the documented demo account when a deployment has no seeded database."""
+    if not settings.DEMO_MODE or payload.phone != "9876543210" or payload.password != "demo1234":
+        return None
+
+    user = User(
+        name="Ramesh Patel",
+        phone="9876543210",
+        email="9876543210@demo.khedutmitra.ai",
+        password_hash=hash_password("demo1234"),
+        role=UserRole.FARMER,
+        language=Language.GUJARATI,
+        location="Ahmedabad",
+    )
+    db.add(user)
+    await db.flush()
+    db.add(FarmerProfile(user_id=user.id, district="Ahmedabad", village="Bavla"))
+    await db.commit()
+    await db.refresh(user)
+    logger.info("Demo user provisioned", user_id=user.id)
+    return user
 
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
@@ -62,6 +86,8 @@ async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db))
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.phone == payload.phone))
     user = result.scalar_one_or_none()
+    if not user:
+        user = await _ensure_demo_user(payload, db)
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid phone or password")
     if not user.is_active:
