@@ -2,6 +2,7 @@
 KhedutMitra AI — Core Settings
 """
 from functools import lru_cache
+import os
 from typing import List, Optional
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -14,8 +15,16 @@ class Settings(BaseSettings):
     @classmethod
     def ignore_empty_environment_values(cls, values: object) -> object:
         if isinstance(values, dict):
-            return {key: value for key, value in values.items() if value != ""}
+            cleaned = {key: value for key, value in values.items() if value != ""}
+            return cleaned
         return values
+
+    @model_validator(mode="after")
+    def use_vercel_database_path(self) -> "Settings":
+        if os.getenv("VERCEL") and not os.getenv("DATABASE_URL", "").strip():
+            self.DATABASE_URL = "sqlite+aiosqlite:////tmp/khedutmitra.db"
+            self.SYNC_DATABASE_URL = "sqlite:////tmp/khedutmitra.db"
+        return self
 
     # App
     APP_ENV: str = "development"
