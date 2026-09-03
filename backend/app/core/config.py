@@ -3,6 +3,7 @@ KhedutMitra AI — Core Settings
 """
 from functools import lru_cache
 from typing import List, Optional
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -52,6 +53,16 @@ class Settings(BaseSettings):
     # Upload
     MAX_UPLOAD_SIZE_MB: int = 5
     ALLOWED_IMAGE_TYPES: str = "image/jpeg,image/png,image/webp"
+
+    @field_validator("MAX_UPLOAD_SIZE_MB", mode="before")
+    @classmethod
+    def parse_upload_size(cls, value: object) -> object:
+        if value is None or (isinstance(value, str) and not value.strip()):
+            return 5
+        if isinstance(value, str):
+            digits = "".join(character for character in value if character.isdigit())
+            return int(digits) if digits else 5
+        return value
 
     # Feature Flags
     ENABLE_QUALITY_AI: bool = False
