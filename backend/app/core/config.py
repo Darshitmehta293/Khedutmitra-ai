@@ -3,12 +3,19 @@ KhedutMitra AI — Core Settings
 """
 from functools import lru_cache
 from typing import List, Optional
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    @model_validator(mode="before")
+    @classmethod
+    def ignore_empty_environment_values(cls, values: object) -> object:
+        if isinstance(values, dict):
+            return {key: value for key, value in values.items() if value != ""}
+        return values
 
     # App
     APP_ENV: str = "development"
@@ -57,8 +64,6 @@ class Settings(BaseSettings):
     @field_validator("MAX_UPLOAD_SIZE_MB", mode="before")
     @classmethod
     def parse_upload_size(cls, value: object) -> object:
-        if value is None or (isinstance(value, str) and not value.strip()):
-            return 5
         if isinstance(value, str):
             digits = "".join(character for character in value if character.isdigit())
             return int(digits) if digits else 5
