@@ -8,8 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database.session import get_db
-from app.models.models import User, UserRole
-from app.core.security import decode_access_token
+from app.models.models import User, FarmerProfile, UserRole, Language
+from app.core.security import decode_access_token, hash_password
+from app.core.config import settings
 
 bearer_scheme = HTTPBearer()
 
@@ -25,6 +26,21 @@ async def get_current_user(
     user_id = payload.get("sub")
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
+    if not user and settings.DEMO_MODE and payload.get("role") == UserRole.FARMER.value:
+        user = User(
+            id=user_id,
+            name="Ramesh Patel",
+            phone="9876543210",
+            email="9876543210@demo.khedutmitra.ai",
+            password_hash=hash_password("demo1234"),
+            role=UserRole.FARMER,
+            language=Language.GUJARATI,
+            location="Ahmedabad",
+        )
+        db.add(user)
+        await db.flush()
+        db.add(FarmerProfile(user_id=user.id, district="Ahmedabad", village="Bavla"))
+        await db.commit()
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
     return user
