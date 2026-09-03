@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body { @apply bg-white text-gray-900 font-sans antialiased; }
+  h1, h2, h3 { @apply font-semibold; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-5 py-3 rounded-xl font-semibold text-base active:scale-95 transition-all disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply bg-white border-2 border-primary text-primary px-5 py-3 rounded-xl font-semibold text-base active:scale-95 transition-all;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-5;
+  }
+  .badge-demo {
+    @apply inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+  .badge-action-sell {
+    @apply inline-flex items-center bg-red-500 text-white text-sm font-bold px-4 py-1.5 rounded-full;
+  }
+  .badge-action-store {
+    @apply inline-flex items-center bg-primary text-white text-sm font-bold px-4 py-1.5 rounded-full;
+  }
+  .badge-action-wait {
+    @apply inline-flex items-center bg-amber-500 text-white text-sm font-bold px-4 py-1.5 rounded-full;
+  }
+  .price-display {
+    @apply text-3xl font-bold text-gray-900;
+  }
+  .price-subtext {
+    @apply text-sm text-gray-500 mt-0.5;
+  }
+  .input-field {
+    @apply w-full border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+  .select-field {
+    @apply w-full border border-gray-200 rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary bg-white;
+  }
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
