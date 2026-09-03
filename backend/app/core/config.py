@@ -24,10 +24,16 @@ class Settings(BaseSettings):
         if os.getenv("VERCEL"):
             if self.DATABASE_URL.startswith("sqlite"):
                 raise ValueError("DATABASE_URL must point to a persistent PostgreSQL database on Vercel")
+            if self.DATABASE_URL.startswith("postgres://"):
+                self.DATABASE_URL = self.DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif self.DATABASE_URL.startswith("postgresql://"):
+                self.DATABASE_URL = self.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
             if not self.SYNC_DATABASE_URL.strip() or self.SYNC_DATABASE_URL.startswith("sqlite"):
                 self.SYNC_DATABASE_URL = self.DATABASE_URL.replace(
                     "postgresql+asyncpg://", "postgresql://", 1
                 )
+            elif self.SYNC_DATABASE_URL.startswith("postgres://"):
+                self.SYNC_DATABASE_URL = self.SYNC_DATABASE_URL.replace("postgres://", "postgresql://", 1)
         return self
 
     # App
