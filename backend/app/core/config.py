@@ -43,6 +43,8 @@ class Settings(BaseSettings):
         parsed = urlsplit(url)
         query = parse_qsl(parsed.query, keep_blank_values=True)
         query = [("ssl" if key == "sslmode" else key, value) for key, value in query]
+        if not any(key == "prepared_statement_cache_size" for key, _ in query):
+            query.append(("prepared_statement_cache_size", "0"))
         return urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urlencode(query), parsed.fragment))
 
     # App
