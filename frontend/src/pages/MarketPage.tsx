@@ -4,6 +4,7 @@ import { marketService } from '../services/api'
 import { PriceData, PricePoint } from '../types'
 import { TrendingUp, TrendingDown, Minus, Loader2, AlertTriangle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts'
+import toast from 'react-hot-toast'
 
 const CROPS = [
   { id: 'crop_cotton', label: 'Cotton 🌸', gu: 'કપાસ' },
@@ -30,16 +31,22 @@ export default function MarketPage() {
   const load = async () => {
     setLoading(true)
     try {
-      const [priceRes, trendRes, fcRes] = await Promise.all([
+      const [priceRes, trendRes, fcRes] = await Promise.allSettled([
         marketService.getPrices(cropId, undefined, district),
         marketService.getPriceTrend(cropId, MANDI_MAP[district] || 'mkt_ahmedabad', 30),
         marketService.getForecast(cropId, MANDI_MAP[district] || 'mkt_ahmedabad'),
       ])
-      setPriceData(priceRes.data)
-      setTrendData(trendRes.data.prices || [])
-      setForecastData(fcRes.data)
-    } catch (e) {
-      console.error(e)
+      if (priceRes.status === 'fulfilled') {
+        setPriceData(priceRes.value.data)
+      } else {
+        setPriceData(null)
+        toast.error('Market prices are unavailable right now')
+      }
+      setTrendData(trendRes.status === 'fulfilled' ? trendRes.value.data.prices || [] : [])
+      setForecastData(fcRes.status === 'fulfilled' ? fcRes.value.data : null)
+      if (trendRes.status === 'rejected' || fcRes.status === 'rejected') {
+        toast.error('Some market details could not be loaded')
+      }
     } finally {
       setLoading(false)
     }

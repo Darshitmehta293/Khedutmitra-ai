@@ -31,6 +31,7 @@ Date: 2026-09-03
 - Sell-or-store recommendation API
 - Sell-or-store browser analysis with financial breakdown and agent trace
 - Sell-or-store invalid quantity handling with stale-result clearing
+- Market current price, forecast, 30-day history, and nearby mandi rendering
 - Live browser route matrix: dashboard, market, sell/store, buyers, quality, income, AI
 - Desktop logout returns to landing page
 - Gujarati-to-English language switch in browser
@@ -64,6 +65,9 @@ Buyer cards displayed Contact Buyer and Request Quote controls, but neither subm
 
 ### Sell-or-store errors were silent
 The Sell/Store page sent `NaN` for empty numeric fields and only logged API failures to the console. It now validates quantity and costs, displays user-facing errors, clears stale results, and shows the correct forecast-period label.
+
+### Market data loading was fragile
+The mandi agent passed crop and market arguments in the wrong order when loading history, and the Market page discarded current prices if a secondary request failed. The argument order is corrected and the page now renders available price data while reporting partial failures.
 
 ### IBM dependency resolution
 The root Vercel dependency set was flattened and optional IBM SDK dependencies were removed from the Vercel runtime list to avoid incompatible `uv` resolution. Full backend requirements remain available for Docker deployments.

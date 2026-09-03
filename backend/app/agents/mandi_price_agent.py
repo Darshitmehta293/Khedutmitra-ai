@@ -37,7 +37,7 @@ class MandiPriceAgent(BaseAgent):
         primary = max(current, key=lambda p: p.arrivals_tonnes or 0)
 
         # Historical data for trend
-        history = await self.market_provider.get_historical_prices(primary.market_id, crop_id, days=14)
+        history = await self.market_provider.get_historical_prices(crop_id, primary.market_id, days=14)
         modals = [float(h.modal_price) for h in history]
 
         if len(modals) >= 2:
