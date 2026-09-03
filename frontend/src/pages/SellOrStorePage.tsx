@@ -6,6 +6,7 @@ import { Loader2, AlertTriangle, Info, TrendingUp, Package, Users } from 'lucide
 import RecommendationBadge from '../components/RecommendationBadge'
 import AgentTracePanel from '../components/AgentTracePanel'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import toast from 'react-hot-toast'
 
 const CROPS = [
   { id: 'crop_cotton', label: 'Cotton 🌸' },
@@ -27,22 +28,35 @@ export default function SellOrStorePage() {
   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }))
 
   const analyze = async () => {
+    setResult(null)
+    const quantity = Number(form.quantity)
+    const storageCost = Number(form.storage_cost_per_quintal_per_day)
+    const transportCost = Number(form.transport_cost_total)
+    const horizonDays = Number(form.horizon_days)
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      toast.error('Enter a quantity greater than zero')
+      return
+    }
+    if (!Number.isFinite(storageCost) || storageCost < 0 || !Number.isFinite(transportCost) || transportCost < 0) {
+      toast.error('Enter valid non-negative costs')
+      return
+    }
     setLoading(true)
     setResult(null)
     try {
       const res = await aiService.getRecommendation({
         crop_id: form.crop_id,
-        quantity: parseFloat(form.quantity),
+        quantity,
         quality_grade: form.quality_grade,
         district: form.district,
         storage_available: form.storage_available,
-        storage_cost_per_quintal_per_day: parseFloat(form.storage_cost_per_quintal_per_day),
-        transport_cost_total: parseFloat(form.transport_cost_total),
-        horizon_days: parseInt(form.horizon_days),
+        storage_cost_per_quintal_per_day: storageCost,
+        transport_cost_total: transportCost,
+        horizon_days: horizonDays,
       })
       setResult(res.data)
     } catch (e: any) {
-      console.error(e)
+      toast.error(e.response?.data?.detail || 'Analysis failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -87,7 +101,7 @@ export default function SellOrStorePage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('sell_store.horizon')} (days)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('sell_store.horizon')}</label>
             <select value={form.horizon_days} onChange={e => set('horizon_days', e.target.value)} className="select-field">
               {[3, 7, 15, 30].map(d => <option key={d} value={d}>{d} days</option>)}
             </select>

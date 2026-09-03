@@ -29,6 +29,8 @@ Date: 2026-09-03
 - Invalid JWT rejection: 401
 - Market list and crop list APIs
 - Sell-or-store recommendation API
+- Sell-or-store browser analysis with financial breakdown and agent trace
+- Sell-or-store invalid quantity handling with stale-result clearing
 - Live browser route matrix: dashboard, market, sell/store, buyers, quality, income, AI
 - Desktop logout returns to landing page
 - Gujarati-to-English language switch in browser
@@ -59,6 +61,9 @@ Protected routes redirected to login before local storage authentication hydrati
 
 ### Buyer actions were non-functional
 Buyer cards displayed Contact Buyer and Request Quote controls, but neither submitted an API request. Demo match IDs also had no database listing rows, so offers could not satisfy the foreign key. Demo listings are now materialized idempotently and both controls submit pending offers with success/error feedback.
+
+### Sell-or-store errors were silent
+The Sell/Store page sent `NaN` for empty numeric fields and only logged API failures to the console. It now validates quantity and costs, displays user-facing errors, clears stale results, and shows the correct forecast-period label.
 
 ### IBM dependency resolution
 The root Vercel dependency set was flattened and optional IBM SDK dependencies were removed from the Vercel runtime list to avoid incompatible `uv` resolution. Full backend requirements remain available for Docker deployments.
