@@ -12,6 +12,8 @@ _engine_kwargs: dict = {"echo": (settings.APP_ENV == "development")}
 if _is_sqlite:
     _engine_kwargs["connect_args"] = {"check_same_thread": False}
 else:
+    if "pooler.supabase.com" in settings.DATABASE_URL:
+        _engine_kwargs["connect_args"] = {"statement_cache_size": 0}
     _engine_kwargs.update({"pool_size": 10, "max_overflow": 20, "pool_pre_ping": True})
 
 engine = create_async_engine(settings.DATABASE_URL, **_engine_kwargs)

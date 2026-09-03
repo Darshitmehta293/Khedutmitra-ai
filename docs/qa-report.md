@@ -73,6 +73,7 @@ The root Vercel dependency set was flattened and optional IBM SDK dependencies w
 - Docker Compose integration could not run because Docker is not installed in the QA environment.
 - PostgreSQL and Redis integration was not executed locally.
 - Persistent production registration/login was not verified. Vercel `/tmp` SQLite is temporary; configure hosted PostgreSQL using `DATABASE_URL` for real accounts.
+- Vercel now refuses to start if `DATABASE_URL` is missing or points to SQLite, preventing silent temporary-data operation.
 - Pytest could not run because `pytest` is not installed in the base local interpreter.
 - External IBM Granite, IBM COS, live market provider, and production AI credentials were not available.
 - Full buyer registration, offer acceptance/rejection, concurrent offer behavior, and cross-user authorization require broader seeded integration fixtures.
