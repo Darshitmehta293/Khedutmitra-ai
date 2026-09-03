@@ -13,6 +13,7 @@ import QualityPage from './pages/QualityPage'
 import IncomePage from './pages/IncomePage'
 import AIAssistantPage from './pages/AIAssistantPage'
 import DemoPage from './pages/DemoPage'
+import FarmPlannerPage from './pages/FarmPlannerPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isInitializing } = useAuth()
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/quality" element={<ProtectedRoute><QualityPage /></ProtectedRoute>} />
         <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
         <Route path="/ai" element={<ProtectedRoute><AIAssistantPage /></ProtectedRoute>} />
+        <Route path="/farm-planner" element={<ProtectedRoute><FarmPlannerPage /></ProtectedRoute>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
