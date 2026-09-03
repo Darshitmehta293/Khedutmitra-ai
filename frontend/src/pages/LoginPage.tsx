@@ -63,7 +63,7 @@ export default function LoginPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.phone')}</label>
               <input value={phone} onChange={e => setPhone(e.target.value)}
-                className="input-field" placeholder="10-digit mobile" required maxLength={15} />
+                className="input-field" placeholder="10-digit mobile" required minLength={10} maxLength={15} />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('auth.password')}</label>
