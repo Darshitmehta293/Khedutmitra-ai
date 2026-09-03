@@ -11,10 +11,11 @@ const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`
 
 function StatCard({ label, value, sub, color = 'text-gray-900' }: { label: string; value: string; sub?: string; color?: string }) {
   return (
-    <div className="card">
-      <div className="text-sm text-gray-500 mb-1">{label}</div>
-      <div className={`text-2xl font-black ${color}`}>{value}</div>
-      {sub && <div className="text-xs text-gray-400 mt-0.5">{sub}</div>}
+    <div className="card relative overflow-hidden">
+      <div className="absolute right-0 top-0 h-16 w-16 translate-x-5 -translate-y-5 rounded-full bg-primary/5" />
+      <div className="relative text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-400 mb-2">{label}</div>
+      <div className={`relative text-2xl font-black ${color}`}>{value}</div>
+      {sub && <div className="relative text-xs text-gray-400 mt-1">{sub}</div>}
     </div>
   )
 }
@@ -41,9 +42,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between border-b border-gray-200/80 pb-5">
         <div>
-          <h1 className="text-2xl font-black text-gray-900">{greeting}, {user?.name?.split(' ')[0]} 👋</h1>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary/70 mb-2">Your market brief</div>
+          <h1 className="text-3xl font-black text-gray-900">{greeting}, {user?.name?.split(' ')[0]} <span className="text-primary">.</span></h1>
           <p className="text-sm text-gray-500 mt-0.5">{data?.district} • Gujarat</p>
         </div>
         <div className="badge-demo">⚠ {t('common.demo_badge')}</div>
@@ -51,10 +53,10 @@ export default function DashboardPage() {
 
       {/* Recommendation Hero */}
       {data?.recommendation_action && (
-        <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-green-100">
+        <div className="card bg-gradient-to-br from-[#eff8ef] via-white to-[#fff8e8] border-primary/15">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <div className="text-sm text-gray-600 mb-1">{t('dashboard.recommendation')}</div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary/70 mb-2">{t('dashboard.recommendation')}</div>
               <RecommendationBadge action={data.recommendation_action as RecommendationAction} size="lg" />
             </div>
             <div className="text-right">
@@ -80,7 +82,10 @@ export default function DashboardPage() {
 
       {/* Inventory */}
       <div className="card">
-        <h2 className="font-semibold mb-3">{t('dashboard.total_inventory')}</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold">{t('dashboard.total_inventory')}</h2>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400">Live snapshot</span>
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-amber-50 rounded-xl p-4">
             <div className="text-sm text-amber-700 font-medium">{t('dashboard.cotton')} 🌸</div>
