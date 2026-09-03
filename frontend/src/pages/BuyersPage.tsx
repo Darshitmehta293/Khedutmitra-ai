@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { buyerService } from '../services/api'
 import { BuyerMatch } from '../types'
 import { MapPin, Package, Star, Phone, Loader2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const CROPS = [
   { id: 'crop_cotton', label: 'Cotton 🌸' },
@@ -34,6 +35,7 @@ export default function BuyersPage() {
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
   const [contactedId, setContactedId] = useState<string | null>(null)
+  const [submittingId, setSubmittingId] = useState<string | null>(null)
 
   const search = async () => {
     setLoading(true)
@@ -49,6 +51,24 @@ export default function BuyersPage() {
   }
 
   useEffect(() => { search() }, [])
+
+  const sendEnquiry = async (listing: BuyerMatch) => {
+    setSubmittingId(listing.listing_id)
+    try {
+      await buyerService.createOffer({
+        buyer_listing_id: listing.listing_id,
+        quantity: Math.max(parseFloat(quantity), listing.min_quantity),
+        offered_price: listing.offered_price,
+        message: 'Farmer enquiry from KhedutMitra marketplace',
+      })
+      setContactedId(listing.listing_id)
+      toast.success('Enquiry sent to buyer')
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Could not contact buyer')
+    } finally {
+      setSubmittingId(null)
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -112,16 +132,18 @@ export default function BuyersPage() {
 
               <div className="flex gap-2 mt-3">
                 <button
-                  onClick={() => setContactedId(m.listing_id)}
+                  onClick={() => sendEnquiry(m)}
+                  disabled={submittingId === m.listing_id || contactedId === m.listing_id}
                   className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all ${
                     contactedId === m.listing_id
                       ? 'bg-primary text-white border-primary'
                       : 'border-primary text-primary hover:bg-primary/5'
                   }`}
                 >
-                  {contactedId === m.listing_id ? '✓ Enquiry Sent' : t('buyers.contact_buyer')}
+                  {submittingId === m.listing_id ? 'Sending...' : contactedId === m.listing_id ? '✓ Enquiry Sent' : t('buyers.contact_buyer')}
                 </button>
-                <button className="px-4 py-2 bg-gray-100 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-200 transition">
+                <button onClick={() => sendEnquiry(m)} disabled={submittingId === m.listing_id}
+                  className="px-4 py-2 bg-gray-100 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-200 transition disabled:opacity-50">
                   {t('buyers.request_quote')}
                 </button>
               </div>

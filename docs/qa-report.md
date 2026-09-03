@@ -32,6 +32,9 @@ Date: 2026-09-03
 - Live browser route matrix: dashboard, market, sell/store, buyers, quality, income, AI
 - Desktop logout returns to landing page
 - Gujarati-to-English language switch in browser
+- Buyer marketplace search and match rendering
+- Buyer Contact/Request Quote actions create pending offers
+- Buyer offer validation rejects zero quantity
 - Browser console had only React Router future-flag warnings during the tested flow
 
 ## Bugs Found and Fixed
@@ -53,6 +56,9 @@ The frontend discarded the registration token and sent empty optional email valu
 
 ### Auth refresh redirect
 Protected routes redirected to login before local storage authentication hydration completed. Protected routes now wait for initialization, so refresh navigation preserves the session.
+
+### Buyer actions were non-functional
+Buyer cards displayed Contact Buyer and Request Quote controls, but neither submitted an API request. Demo match IDs also had no database listing rows, so offers could not satisfy the foreign key. Demo listings are now materialized idempotently and both controls submit pending offers with success/error feedback.
 
 ### IBM dependency resolution
 The root Vercel dependency set was flattened and optional IBM SDK dependencies were removed from the Vercel runtime list to avoid incompatible `uv` resolution. Full backend requirements remain available for Docker deployments.
