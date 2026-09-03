@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { marketService } from '../services/api'
 import { PriceData, PricePoint } from '../types'
-import { TrendingUp, TrendingDown, Minus, Loader2, AlertTriangle } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, Loader2, AlertTriangle, WifiOff, Bookmark, BookmarkCheck } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts'
 import toast from 'react-hot-toast'
 
@@ -27,9 +27,23 @@ export default function MarketPage() {
   const [trendData, setTrendData] = useState<{ date: string; min: number; max: number; modal: number }[]>([])
   const [forecastData, setForecastData] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [offline, setOffline] = useState(false)
+  const [savedMarkets, setSavedMarkets] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('km_saved_markets') || '[]') } catch { return [] }
+  })
+
+  const cacheKey = `km_market_${cropId}_${district}`
+  const toggleSavedMarket = () => {
+    const next = savedMarkets.includes(cacheKey)
+      ? savedMarkets.filter(key => key !== cacheKey)
+      : [...savedMarkets, cacheKey]
+    setSavedMarkets(next)
+    localStorage.setItem('km_saved_markets', JSON.stringify(next))
+  }
 
   const load = async () => {
     setLoading(true)
+    setOffline(false)
     try {
       const [priceRes, trendRes, fcRes] = await Promise.allSettled([
         marketService.getPrices(cropId, undefined, district),
@@ -39,13 +53,43 @@ export default function MarketPage() {
       if (priceRes.status === 'fulfilled') {
         setPriceData(priceRes.value.data)
       } else {
-        setPriceData(null)
-        toast.error('Market prices are unavailable right now')
+        const cached = localStorage.getItem(cacheKey)
+        if (cached) {
+          const snapshot = JSON.parse(cached)
+          setPriceData(snapshot.price)
+          setTrendData(snapshot.trend || [])
+          setForecastData(snapshot.forecast)
+          setOffline(true)
+          toast('Showing your last saved market snapshot', { icon: '↺' })
+        } else {
+          setPriceData(null)
+          toast.error('Market prices are unavailable right now')
+        }
       }
       setTrendData(trendRes.status === 'fulfilled' ? trendRes.value.data.prices || [] : [])
       setForecastData(fcRes.status === 'fulfilled' ? fcRes.value.data : null)
+      if (priceRes.status === 'fulfilled') {
+        localStorage.setItem(cacheKey, JSON.stringify({
+          price: priceRes.value.data,
+          trend: trendRes.status === 'fulfilled' ? trendRes.value.data.prices || [] : [],
+          forecast: fcRes.status === 'fulfilled' ? fcRes.value.data : null,
+        }))
+      }
       if (trendRes.status === 'rejected' || fcRes.status === 'rejected') {
         toast.error('Some market details could not be loaded')
+      }
+    } catch {
+      const cached = localStorage.getItem(cacheKey)
+      if (cached) {
+        const snapshot = JSON.parse(cached)
+        setPriceData(snapshot.price)
+        setTrendData(snapshot.trend || [])
+        setForecastData(snapshot.forecast)
+        setOffline(true)
+        toast('Showing your last saved market snapshot', { icon: '↺' })
+      } else {
+        setPriceData(null)
+        toast.error('Market prices are unavailable right now')
       }
     } finally {
       setLoading(false)
@@ -61,8 +105,16 @@ export default function MarketPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-2xl font-black">{t('market.title')}</h1>
-        <div className="badge-demo">⚠ {t('market.demo_label')}</div>
+        <div className="flex items-center gap-2">
+          <button onClick={toggleSavedMarket} className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5">
+            {savedMarkets.includes(cacheKey) ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
+            {savedMarkets.includes(cacheKey) ? 'Saved' : 'Save market'}
+          </button>
+          <div className="badge-demo">⚠ {t('market.demo_label')}</div>
+        </div>
       </div>
+
+      {offline && <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"><WifiOff size={14} /> Showing the last saved snapshot</div>}
 
       {/* Filters */}
       <div className="grid grid-cols-2 gap-3">

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { aiService } from '../services/api'
 import { RecommendationResult, RecommendationAction } from '../types'
-import { Loader2, AlertTriangle, Info, TrendingUp, Package, Users } from 'lucide-react'
+import { Loader2, AlertTriangle, Info, TrendingUp, Package, Users, Download } from 'lucide-react'
 import RecommendationBadge from '../components/RecommendationBadge'
 import AgentTracePanel from '../components/AgentTracePanel'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
@@ -26,6 +26,29 @@ export default function SellOrStorePage() {
   const [result, setResult] = useState<RecommendationResult | null>(null)
   const [loading, setLoading] = useState(false)
   const set = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }))
+
+  const downloadSummary = () => {
+    if (!result) return
+    const summary = [
+      'KhedutMitra AI - Sell or Store Summary',
+      `Crop: ${result.crop_name}`,
+      `Quantity: ${form.quantity} quintals`,
+      `Recommendation: ${result.action}${result.recommended_days ? ` for ${result.recommended_days} days` : ''}`,
+      `Current revenue: Rs ${result.current_revenue.toLocaleString('en-IN')}`,
+      `Expected net revenue: Rs ${result.expected_net_revenue.toLocaleString('en-IN')}`,
+      `Potential gain: Rs ${result.potential_gain.toLocaleString('en-IN')}`,
+      '',
+      result.disclaimer,
+    ].join('\n')
+    const blob = new Blob([summary], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'khedutmitra-recommendation.txt'
+    link.click()
+    URL.revokeObjectURL(url)
+    toast.success('Recommendation downloaded')
+  }
 
   const analyze = async () => {
     setResult(null)
@@ -140,6 +163,10 @@ export default function SellOrStorePage() {
                 <div className="text-xs text-gray-400">Confidence: {Math.round(result.confidence * 100)}%</div>
               </div>
             </div>
+
+            <button onClick={downloadSummary} className="inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-white px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/5">
+              <Download size={14} /> Download summary
+            </button>
 
             {/* Revenue comparison chart */}
             <ResponsiveContainer width="100%" height={120}>
