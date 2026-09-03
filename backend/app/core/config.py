@@ -4,6 +4,7 @@ KhedutMitra AI — Core Settings
 from functools import lru_cache
 import os
 from typing import List, Optional
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -24,10 +25,7 @@ class Settings(BaseSettings):
         if os.getenv("VERCEL"):
             if self.DATABASE_URL.startswith("sqlite"):
                 raise ValueError("DATABASE_URL must point to a persistent PostgreSQL database on Vercel")
-            if self.DATABASE_URL.startswith("postgres://"):
-                self.DATABASE_URL = self.DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
-            elif self.DATABASE_URL.startswith("postgresql://"):
-                self.DATABASE_URL = self.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+            self.DATABASE_URL = self._async_database_url(self.DATABASE_URL)
             if not self.SYNC_DATABASE_URL.strip() or self.SYNC_DATABASE_URL.startswith("sqlite"):
                 self.SYNC_DATABASE_URL = self.DATABASE_URL.replace(
                     "postgresql+asyncpg://", "postgresql://", 1
@@ -35,6 +33,17 @@ class Settings(BaseSettings):
             elif self.SYNC_DATABASE_URL.startswith("postgres://"):
                 self.SYNC_DATABASE_URL = self.SYNC_DATABASE_URL.replace("postgres://", "postgresql://", 1)
         return self
+
+    @staticmethod
+    def _async_database_url(url: str) -> str:
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif url.startswith("postgresql://"):
+            url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        parsed = urlsplit(url)
+        query = parse_qsl(parsed.query, keep_blank_values=True)
+        query = [("ssl" if key == "sslmode" else key, value) for key, value in query]
+        return urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urlencode(query), parsed.fragment))
 
     # App
     APP_ENV: str = "development"
