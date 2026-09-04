@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import {
   LayoutDashboard, TrendingUp, Scale, Users, Camera, Archive, Sparkles,
-  PiggyBank, MessageSquare, CalendarDays, LogOut, Leaf
+  PiggyBank, MessageSquare, CalendarDays, LogOut, Leaf, Moon, Sun
 } from 'lucide-react'
 import LanguageSwitcher from './LanguageSwitcher'
 import DemoBanner from './DemoBanner'
@@ -13,6 +13,24 @@ export default function Layout() {
   const { t } = useTranslation()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('km_theme') === 'dark')
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode)
+    localStorage.setItem('km_theme', darkMode ? 'dark' : 'light')
+  }, [darkMode])
+
+  const themeButton = (
+    <button
+      type="button"
+      onClick={() => setDarkMode(value => !value)}
+      title={darkMode ? 'Switch to light mode' : 'Switch to night mode'}
+      aria-label={darkMode ? 'Switch to light mode' : 'Switch to night mode'}
+      className="p-2 rounded-lg text-gray-500 hover:bg-primary/10 hover:text-primary transition-colors"
+    >
+      {darkMode ? <Sun size={17} /> : <Moon size={17} />}
+    </button>
+  )
 
   const navItems = [
     { to: '/dashboard',    icon: LayoutDashboard, label: t('nav.dashboard') },
@@ -67,7 +85,7 @@ export default function Layout() {
               <div className="text-xs text-gray-400 capitalize">{user?.role}</div>
             </div>
           </div>
-          <LanguageSwitcher />
+          <div className="flex items-center justify-between gap-2"><LanguageSwitcher />{themeButton}</div>
           <button onClick={() => { logout(); navigate('/') }}
             className="mt-2 flex items-center gap-2 text-sm text-gray-500 hover:text-red-500 transition-colors">
             <LogOut size={15} /> {t('nav.logout')}
@@ -83,7 +101,7 @@ export default function Layout() {
           </div>
           <span className="font-bold text-sm">KhedutMitra AI</span>
         </div>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-1"><LanguageSwitcher />{themeButton}</div>
       </div>
 
       {/* Mobile bottom nav */}

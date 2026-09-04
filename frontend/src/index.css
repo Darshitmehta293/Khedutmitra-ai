@@ -61,3 +61,28 @@ main > .p-4 {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f1f5f9; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  @apply bg-gray-950 text-gray-100;
+  background-image: linear-gradient(rgba(74, 184, 119, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(74, 184, 119, 0.035) 1px, transparent 1px);
+}
+
+.dark .card { @apply bg-gray-900/95 border-gray-800 shadow-black/20; }
+.dark .price-display, .dark h1, .dark h2, .dark h3 { @apply text-gray-100; }
+.dark .input-field, .dark .select-field { @apply bg-gray-900 border-gray-700 text-gray-100; }
+.dark .btn-secondary { @apply bg-gray-900 border-primary/40 text-primary-light; }
+.dark aside, .dark .md\:hidden.fixed { @apply bg-gray-950/95 border-gray-800; }
+.dark .text-gray-900 { color: #f3f4f6; }
+.dark .text-gray-700 { color: #d1d5db; }
+.dark .text-gray-600 { color: #9ca3af; }
+.dark .text-gray-500 { color: #9ca3af; }
+.dark .text-gray-400 { color: #6b7280; }
+.dark .bg-white, .dark .bg-white\/95 { @apply bg-gray-900; }
+.dark .bg-gray-100 { @apply bg-gray-800; }
+.dark .border-gray-200, .dark .border-gray-200\/80 { @apply border-gray-800; }
+.dark ::-webkit-scrollbar-track { background: #111827; }
+.dark ::-webkit-scrollbar-thumb { background: #374151; }

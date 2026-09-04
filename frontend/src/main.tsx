@@ -7,6 +7,10 @@ import { AuthProvider } from './context/AuthContext'
 import './i18n'
 import './index.css'
 
+if (localStorage.getItem('km_theme') === 'dark') {
+  document.documentElement.classList.add('dark')
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
