@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Leaf, TrendingUp, Users, MessageSquare, ArrowRight, CheckCircle } from 'lucide-react'
+import { Leaf, TrendingUp, Users, MessageSquare, ArrowRight, Info, Mail, Github } from 'lucide-react'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 
 export default function LandingPage() {
@@ -22,6 +22,8 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <a href="#about" className="hidden sm:inline text-sm font-medium text-gray-600 hover:text-primary">About</a>
+          <a href="#contact" className="hidden sm:inline text-sm font-medium text-gray-600 hover:text-primary">Contact</a>
           <LanguageSwitcher />
           <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-primary">{t('nav.login')}</Link>
           <Link to="/register" className="btn-primary text-sm py-2 px-4">
@@ -132,6 +134,26 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* About and contact */}
+      <section id="about" className="py-14 px-4 bg-surface scroll-mt-6">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
+          <div className="card">
+            <div className="flex items-center gap-2 text-primary mb-3"><Info size={20} /><h2 className="text-xl font-bold text-gray-900">About KhedutMitra AI</h2></div>
+            <p className="text-sm text-gray-600 leading-6">KhedutMitra AI is a farmer-focused market intelligence platform for Gujarat. It brings mandi prices, forecasts, buyer discovery, quality guidance, storage economics, and multilingual decision support into one simple workspace.</p>
+            <p className="text-sm text-gray-600 leading-6 mt-3">The platform is built as an IBM technology and AI agent demonstration, with transparent demo fallbacks when live providers are not configured.</p>
+          </div>
+          <div id="contact" className="card scroll-mt-6">
+            <div className="flex items-center gap-2 text-primary mb-3"><Mail size={20} /><h2 className="text-xl font-bold text-gray-900">Contact & Developer</h2></div>
+            <p className="text-sm text-gray-600 leading-6">Developed by <strong className="text-gray-900">Darshit Mehta</strong>.</p>
+            <div className="mt-4 space-y-2 text-sm">
+              <a href="https://github.com/Darshitmehta293" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:text-primary-dark"><Github size={17} /> GitHub developer profile</a>
+              <a href="https://github.com/Darshitmehta293/Khedutmitra-ai" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:text-primary-dark"><Github size={17} /> KhedutMitra AI source repository</a>
+            </div>
+            <p className="text-xs text-gray-400 mt-4">For project questions, open an issue in the source repository.</p>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-14 px-4 text-center bg-primary text-white">
         <h2 className="text-3xl font-black mb-3">Ready to Sell Smarter?</h2>
@@ -147,7 +169,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="text-center py-6 text-xs text-gray-400 border-t border-gray-100">
-        © 2024 KhedutMitra AI — IBM Hackathon Challenge 13 | Economic Development
+        © 2024 KhedutMitra AI · Developed by Darshit Mehta · IBM Hackathon Challenge 13 | Economic Development
       </footer>
     </div>
   )
