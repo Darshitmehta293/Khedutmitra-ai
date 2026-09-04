@@ -227,10 +227,11 @@ class AgentOrchestrator:
 
     async def match_buyers(self, crop_id: str, quantity: float,
                            quality_grade: str, district: str,
-                           preferred_price: Optional[float] = None) -> Dict[str, Any]:
+                           preferred_price: Optional[float] = None,
+                           buyers: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
         result = await self.buyer_agent._timed_run(
             crop_id=crop_id, quantity=quantity, quality_grade=quality_grade,
-            district=district, preferred_price=preferred_price
+            district=district, preferred_price=preferred_price, buyers=buyers
         )
         return result.data if result.success else {"matches": [], "error": result.error}
 

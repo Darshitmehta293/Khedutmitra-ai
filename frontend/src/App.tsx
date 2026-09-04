@@ -14,6 +14,7 @@ import IncomePage from './pages/IncomePage'
 import AIAssistantPage from './pages/AIAssistantPage'
 import DemoPage from './pages/DemoPage'
 import FarmPlannerPage from './pages/FarmPlannerPage'
+import InventoryPage from './pages/InventoryPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isInitializing } = useAuth()
@@ -30,6 +31,7 @@ export default function App() {
       <Route path="/demo" element={<DemoPage />} />
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+        <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
         <Route path="/market" element={<ProtectedRoute><MarketPage /></ProtectedRoute>} />
         <Route path="/sell-or-store" element={<ProtectedRoute><SellOrStorePage /></ProtectedRoute>} />
         <Route path="/buyers" element={<ProtectedRoute><BuyersPage /></ProtectedRoute>} />

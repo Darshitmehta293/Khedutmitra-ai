@@ -67,6 +67,7 @@ export const aiService = {
     api.post('/ai/quality-assessment', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   demoScenario: (cropId = 'crop_cotton', quantity = 50, district = 'Ahmedabad') =>
     api.get('/ai/demo-scenario', { params: { crop_id: cropId, quantity, district } }),
+  getRecommendationHistory: (limit = 20) => api.get('/ai/recommendations', { params: { limit } }),
 }
 
 // ─── Buyers ──────────────────────────────────────────────────
@@ -76,6 +77,8 @@ export const buyerService = {
   getMatches: (params: object) => api.get('/buyers/matches', { params }),
   createOffer: (data: object) => api.post('/buyers/offers', data),
   updateOffer: (id: string, status: string) => api.put(`/buyers/offers/${id}`, null, { params: { new_status: status } }),
+  listOffers: () => api.get('/buyers/offers'),
+  createListing: (data: object) => api.post('/buyers/listings', data),
 }
 
 // ─── Admin ────────────────────────────────────────────────────

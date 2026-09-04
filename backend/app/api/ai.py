@@ -2,6 +2,7 @@
 AI API — Chat, Recommendation, Quality Assessment, Buyer Matching
 """
 import uuid
+import json
 from decimal import Decimal
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
@@ -11,7 +12,7 @@ from sqlalchemy.orm import selectinload
 
 from app.database.session import get_db
 from app.api.deps import get_current_user, require_farmer
-from app.models.models import User
+from app.models.models import User, Recommendation
 from app.agents.orchestrator import get_orchestrator
 from app.schemas.schemas import ChatRequest, RecommendationRequest
 from app.core.config import settings
@@ -76,7 +77,63 @@ async def get_recommendation(
         language=current_user.language.value,
         inventory_id=payload.inventory_id,
     )
-    return _safe(result)
+    stored = Recommendation(
+        farmer_id=current_user.id,
+        inventory_id=payload.inventory_id,
+        action=result.get("action", "SELL_NOW"),
+        recommended_days=result.get("recommended_days"),
+        current_revenue=result.get("current_revenue"),
+        expected_future_revenue=result.get("expected_future_revenue"),
+        storage_cost=result.get("storage_cost"),
+        transport_cost=result.get("transport_cost"),
+        quality_loss_cost=result.get("quality_loss_cost"),
+        expected_net_revenue=result.get("expected_net_revenue"),
+        potential_gain=result.get("potential_gain"),
+        confidence=result.get("confidence"),
+        explanation=result.get("reasoning"),
+        explanation_gu=result.get("granite_explanation") if current_user.language.value == "gu" else None,
+        explanation_hi=result.get("granite_explanation") if current_user.language.value == "hi" else None,
+        agent_trace=json.dumps(result.get("agent_trace", []), default=str),
+    )
+    db.add(stored)
+    await db.commit()
+    response = _safe(result)
+    response["recommendation_id"] = stored.id
+    return response
+
+
+@router.get("/recommendations")
+async def recommendation_history(
+    limit: int = 20,
+    current_user: User = Depends(require_farmer),
+    db: AsyncSession = Depends(get_db),
+):
+    limit = max(1, min(limit, 100))
+    result = await db.execute(
+        select(Recommendation)
+        .where(Recommendation.farmer_id == current_user.id)
+        .order_by(Recommendation.created_at.desc())
+        .limit(limit)
+    )
+    rows = result.scalars().all()
+    return {
+        "recommendations": [
+            {
+                "id": row.id,
+                "inventory_id": row.inventory_id,
+                "action": row.action.value,
+                "recommended_days": row.recommended_days,
+                "current_revenue": float(row.current_revenue or 0),
+                "expected_net_revenue": float(row.expected_net_revenue or 0),
+                "potential_gain": float(row.potential_gain or 0),
+                "confidence": row.confidence,
+                "explanation": row.explanation,
+                "created_at": row.created_at.isoformat(),
+            }
+            for row in rows
+        ],
+        "total": len(rows),
+    }
 
 
 @router.post("/match-buyers")

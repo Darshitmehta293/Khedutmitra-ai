@@ -141,7 +141,8 @@ class BuyerMatchingAgent(BaseAgent):
         farmer_grade_val = GRADE_ORDER.get(quality_grade, 1)
         matches = []
 
-        for buyer in self.buyers:
+        buyers = kwargs.get("buyers") or self.buyers
+        for buyer in buyers:
             breakdown: Dict[str, float] = {}
 
             # Crop match (hard filter + partial)

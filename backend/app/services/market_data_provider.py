@@ -9,6 +9,7 @@ import abc
 import random
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
+import httpx
 from app.core.logging import logger
 
 
@@ -66,6 +67,83 @@ class MarketDataProvider(abc.ABC):
     @abc.abstractmethod
     async def health_check(self) -> Dict[str, Any]:
         ...
+
+
+class AGMARKNETProvider(MarketDataProvider):
+    """Adapter for AGMARKNET-compatible JSON endpoints with safe fallback."""
+
+    def __init__(self, endpoint: str, api_key: Optional[str], fallback: MarketDataProvider):
+        self.endpoint = endpoint
+        self.api_key = api_key
+        self.fallback = fallback
+
+    @staticmethod
+    def _number(value: Any, default: float = 0.0) -> float:
+        try:
+            return float(str(value).replace(",", "").strip())
+        except (TypeError, ValueError):
+            return default
+
+    def _normalize(self, item: Dict[str, Any], crop_id: str, market_id: Optional[str]) -> Optional[MarketPriceData]:
+        market = str(item.get("market_id") or item.get("market") or market_id or "unknown")
+        modal = self._number(item.get("modal_price") or item.get("modal_price_rs"))
+        minimum = self._number(item.get("min_price") or item.get("min_price_rs"), modal)
+        maximum = self._number(item.get("max_price") or item.get("max_price_rs"), modal)
+        if modal <= 0 or minimum <= 0 or maximum <= 0:
+            return None
+        date_value = item.get("price_date") or item.get("arrival_date")
+        try:
+            price_date = datetime.fromisoformat(str(date_value).replace("Z", "+00:00")) if date_value else datetime.utcnow()
+        except ValueError:
+            price_date = datetime.utcnow()
+        return MarketPriceData(
+            market_id=market,
+            market_name=str(item.get("market_name") or item.get("market") or market),
+            crop_id=crop_id,
+            crop_name=str(item.get("crop_name") or crop_id.replace("crop_", "").title()),
+            price_date=price_date,
+            min_price=minimum,
+            max_price=maximum,
+            modal_price=modal,
+            arrivals_tonnes=self._number(item.get("arrivals_tonnes") or item.get("arrivals")),
+            source="agmarknet",
+            is_demo=False,
+        )
+
+    async def _fetch(self, crop_id: str, market_id: Optional[str] = None) -> List[MarketPriceData]:
+        params = {"crop_id": crop_id}
+        if market_id:
+            params["market_id"] = market_id
+        headers = {"X-API-Key": self.api_key} if self.api_key else {}
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            response = await client.get(self.endpoint, params=params, headers=headers)
+            response.raise_for_status()
+            payload = response.json()
+        rows = payload.get("data", payload) if isinstance(payload, dict) else payload
+        if not isinstance(rows, list):
+            raise ValueError("Market provider response must contain a data list")
+        return [normalized for row in rows if isinstance(row, dict) for normalized in [self._normalize(row, crop_id, market_id)] if normalized]
+
+    async def get_current_prices(self, crop_id: str, market_id: Optional[str] = None) -> List[MarketPriceData]:
+        try:
+            prices = await self._fetch(crop_id, market_id)
+            return prices or await self.fallback.get_current_prices(crop_id, market_id)
+        except Exception as exc:
+            logger.warning("Live market provider unavailable; using fallback", error=str(exc))
+            return await self.fallback.get_current_prices(crop_id, market_id)
+
+    async def get_historical_prices(self, crop_id: str, market_id: str, days: int = 30) -> List[MarketPriceData]:
+        return await self.get_current_prices(crop_id, market_id)
+
+    async def get_market_list(self, district: Optional[str] = None) -> List[Dict[str, Any]]:
+        return await self.fallback.get_market_list(district)
+
+    async def health_check(self) -> Dict[str, Any]:
+        try:
+            await self._fetch("crop_cotton")
+            return {"status": "ok", "provider": "agmarknet", "is_demo": False}
+        except Exception as exc:
+            return {"status": "degraded", "provider": "agmarknet", "is_demo": True, "error": str(exc)}
 
 
 # ─────────────────────── Mock Provider ────────────────────────
@@ -195,6 +273,12 @@ class MockMarketDataProvider(MarketDataProvider):
 def get_market_data_provider(provider_type: str = "mock") -> MarketDataProvider:
     if provider_type == "mock":
         return MockMarketDataProvider()
-    # Future: LiveMarketDataProvider, AGMARKNETProvider etc.
+    if provider_type in {"agmarknet", "live"}:
+        from app.core.config import settings
+        fallback = MockMarketDataProvider()
+        if settings.LIVE_MARKET_DATA_API_URL:
+            return AGMARKNETProvider(settings.LIVE_MARKET_DATA_API_URL, settings.LIVE_MARKET_DATA_API_KEY, fallback)
+        logger.warning("Live market provider requested without endpoint; falling back to mock")
+        return fallback
     logger.warning("Unknown market data provider, falling back to mock", provider=provider_type)
     return MockMarketDataProvider()
