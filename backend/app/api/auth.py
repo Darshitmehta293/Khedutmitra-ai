@@ -41,6 +41,7 @@ async def _ensure_demo_user(payload: LoginRequest, db: AsyncSession) -> User | N
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
 async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db)):
+    payload.phone = payload.phone.strip()
     # Check phone uniqueness
     existing = await db.execute(select(User).where(User.phone == payload.phone))
     if existing.scalar_one_or_none():
@@ -79,11 +80,12 @@ async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db))
     logger.info("User registered", user_id=user.id, role=payload.role)
 
     token = create_access_token(subject=user.id, role=user.role.value)
-    return TokenResponse(access_token=token, role=user.role, user_id=user.id, name=user.name)
+    return TokenResponse(access_token=token, role=user.role, user_id=user.id, name=user.name, language=user.language)
 
 
 @router.post("/login", response_model=TokenResponse)
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
+    payload.phone = payload.phone.strip()
     result = await db.execute(select(User).where(User.phone == payload.phone))
     user = result.scalar_one_or_none()
     if not user:
@@ -95,7 +97,7 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
 
     token = create_access_token(subject=user.id, role=user.role.value)
     logger.info("User logged in", user_id=user.id)
-    return TokenResponse(access_token=token, role=user.role, user_id=user.id, name=user.name)
+    return TokenResponse(access_token=token, role=user.role, user_id=user.id, name=user.name, language=user.language)
 
 
 @router.get("/me", response_model=UserOut)

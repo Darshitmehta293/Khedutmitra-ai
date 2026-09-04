@@ -42,6 +42,7 @@ class TokenResponse(BaseModel):
     role: UserRole
     user_id: str
     name: str
+    language: Language = Language.ENGLISH
 
 
 class UserOut(BaseModel):
