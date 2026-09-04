@@ -1,8 +1,12 @@
 """
 KhedutMitra AI — Database Engine & Session Factory
 """
+import os
+from uuid import uuid4
+
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 from app.core.config import settings
 
 
@@ -14,8 +18,14 @@ if _is_sqlite:
 else:
     # Vercel/serverless PostgreSQL URLs commonly use PgBouncer transaction
     # pooling, which cannot safely reuse asyncpg prepared statements.
-    _engine_kwargs["connect_args"] = {"statement_cache_size": 0}
-    _engine_kwargs.update({"pool_size": 10, "max_overflow": 20, "pool_pre_ping": True})
+    _engine_kwargs["connect_args"] = {
+        "statement_cache_size": 0,
+        "prepared_statement_name_func": lambda: f"__asyncpg_{uuid4()}__",
+    }
+    if os.getenv("VERCEL") or "pooler" in settings.DATABASE_URL.lower() or "pgbouncer" in settings.DATABASE_URL.lower():
+        _engine_kwargs["poolclass"] = NullPool
+    else:
+        _engine_kwargs.update({"pool_size": 10, "max_overflow": 20, "pool_pre_ping": True})
 
 engine = create_async_engine(settings.DATABASE_URL, **_engine_kwargs)
 
