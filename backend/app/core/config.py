@@ -22,6 +22,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def use_vercel_database_path(self) -> "Settings":
+        if self.DATABASE_URL.startswith(("postgres://", "postgresql://", "postgresql+asyncpg://")):
+            self.DATABASE_URL = self._async_database_url(self.DATABASE_URL)
         if os.getenv("VERCEL"):
             if self.DATABASE_URL.startswith("sqlite"):
                 raise ValueError("DATABASE_URL must point to a persistent PostgreSQL database on Vercel")
