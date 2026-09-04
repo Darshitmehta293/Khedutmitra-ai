@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import {
-  LayoutDashboard, TrendingUp, Scale, Users, Camera, Archive,
+  LayoutDashboard, TrendingUp, Scale, Users, Camera, Archive, Sparkles,
   PiggyBank, MessageSquare, CalendarDays, LogOut, Leaf
 } from 'lucide-react'
 import LanguageSwitcher from './LanguageSwitcher'
@@ -17,6 +17,7 @@ export default function Layout() {
   const navItems = [
     { to: '/dashboard',    icon: LayoutDashboard, label: t('nav.dashboard') },
     { to: '/inventory',    icon: Archive,          label: 'My Inventory' },
+    { to: '/intelligence', icon: Sparkles,          label: 'Intelligence Hub' },
     { to: '/market',       icon: TrendingUp,       label: t('nav.market') },
     { to: '/sell-or-store',icon: Scale,            label: t('nav.sell_or_store') },
     { to: '/buyers',       icon: Users,            label: t('nav.buyers') },

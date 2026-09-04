@@ -400,3 +400,92 @@ class Message(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     conversation = relationship("Conversation", back_populates="messages")
+
+
+class WeatherSnapshot(Base):
+    __tablename__ = "weather_snapshots"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    farmer_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    district = Column(String(120), nullable=False, index=True)
+    forecast_date = Column(DateTime, nullable=False)
+    rainfall_mm = Column(Float, default=0)
+    temperature_c = Column(Float, nullable=False)
+    humidity_percent = Column(Float, nullable=False)
+    alert = Column(String(255), nullable=True)
+    source = Column(String(80), default="demo_weather")
+    is_demo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class PriceAlert(Base):
+    __tablename__ = "price_alerts"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    farmer_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    crop_id = Column(String(36), nullable=False)
+    threshold_price = Column(Float, nullable=False)
+    direction = Column(String(10), default="above")
+    is_active = Column(Boolean, default=True)
+    last_triggered_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Expense(Base):
+    __tablename__ = "expenses"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    farmer_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    crop_id = Column(String(36), nullable=True)
+    category = Column(String(60), nullable=False)
+    amount = Column(Numeric(12, 2), nullable=False)
+    incurred_date = Column(DateTime, default=datetime.utcnow)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Deal(Base):
+    __tablename__ = "deals"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    farmer_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    offer_id = Column(String(36), ForeignKey("offers.id"), nullable=True)
+    status = Column(String(30), default="quoted")
+    agreed_price = Column(Numeric(12, 2), nullable=True)
+    agreed_quantity = Column(Float, nullable=True)
+    delivery_date = Column(DateTime, nullable=True)
+    transport_cost = Column(Numeric(12, 2), default=0)
+    storage_cost = Column(Numeric(12, 2), default=0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Rating(Base):
+    __tablename__ = "ratings"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    rater_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    rated_user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    offer_id = Column(String(36), ForeignKey("offers.id"), nullable=True)
+    score = Column(Integer, nullable=False)
+    comment = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Cooperative(Base):
+    __tablename__ = "cooperatives"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    name = Column(String(160), nullable=False)
+    district = Column(String(120), nullable=True)
+    created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class CooperativeMember(Base):
+    __tablename__ = "cooperative_members"
+
+    id = Column(String(36), primary_key=True, default=gen_uuid)
+    cooperative_id = Column(String(36), ForeignKey("cooperatives.id", ondelete="CASCADE"), nullable=False)
+    farmer_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    joined_at = Column(DateTime, default=datetime.utcnow)

@@ -10,7 +10,7 @@ import time
 from app.core.config import settings
 from app.core.logging import setup_logging, logger
 from app.database.session import create_tables
-from app.api import auth, farmer, markets, ai, buyers, admin
+from app.api import auth, farmer, markets, ai, buyers, admin, intelligence
 
 setup_logging()
 
@@ -69,6 +69,7 @@ app.include_router(markets.router, prefix="/api")
 app.include_router(ai.router, prefix="/api")
 app.include_router(buyers.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(intelligence.router, prefix="/api")
 
 
 @app.get("/api/health")

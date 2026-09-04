@@ -87,3 +87,28 @@ export const adminService = {
   getDashboard: () => api.get('/admin/dashboard'),
   getUsers: (role?: string) => api.get('/admin/users', { params: { role } }),
 }
+
+// ─── Intelligence Hub ───────────────────────────────────────
+export const intelligenceService = {
+  weather: (district: string) => api.get('/intelligence/weather', { params: { district } }),
+  demand: (cropId: string) => api.get('/intelligence/demand', { params: { crop_id: cropId } }),
+  mandiComparison: (cropId: string, quantity: number, district: string) => api.get('/intelligence/mandi-comparison', { params: { crop_id: cropId, quantity, district } }),
+  logistics: (distanceKm: number, quantity: number) => api.get('/intelligence/logistics', { params: { distance_km: distanceKm, quantity } }),
+  storage: (district: string) => api.get('/intelligence/storage', { params: { district } }),
+  negotiate: (data: object) => api.post('/intelligence/negotiation', data),
+  createAlert: (data: object) => api.post('/intelligence/alerts', data),
+  getAlerts: () => api.get('/intelligence/alerts'),
+  getNotifications: () => api.get('/intelligence/notifications'),
+  getProfile: () => api.get('/intelligence/profile'),
+  updateProfile: (data: object) => api.put('/intelligence/profile', data),
+  createExpense: (data: object) => api.post('/intelligence/expenses', data),
+  getProfit: () => api.get('/intelligence/profit'),
+  getRisk: (cropId: string, district: string) => api.get('/intelligence/risk', { params: { crop_id: cropId, district } }),
+  getSchemes: () => api.get('/intelligence/schemes'),
+  getNews: () => api.get('/intelligence/news'),
+  rate: (data: object) => api.post('/intelligence/ratings', data),
+  getCooperative: () => api.get('/intelligence/cooperative'),
+  createCooperative: (data: object) => api.post('/intelligence/cooperative', data),
+  explain: (id: string) => api.get(`/intelligence/explain/${id}`),
+  getAdminAnalytics: () => api.get('/intelligence/admin-analytics'),
+}
