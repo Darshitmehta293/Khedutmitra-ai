@@ -139,6 +139,36 @@ async def create_expense(payload: dict = Body(...), current_user: User = Depends
     return {"id": expense.id, "category": expense.category, "amount": amount, "created_at": expense.created_at.isoformat()}
 
 
+@router.get("/expenses")
+async def list_expenses(current_user: User = Depends(require_farmer), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(Expense).where(Expense.farmer_id == current_user.id).order_by(Expense.incurred_date.desc())
+    )
+    expenses = result.scalars().all()
+    return [
+        {
+            "id": e.id,
+            "crop_id": e.crop_id,
+            "category": e.category,
+            "amount": float(e.amount),
+            "notes": e.notes,
+            "incurred_date": e.incurred_date.isoformat(),
+            "created_at": e.created_at.isoformat(),
+        }
+        for e in expenses
+    ]
+
+
+@router.delete("/expenses/{expense_id}", status_code=204)
+async def delete_expense(expense_id: str, current_user: User = Depends(require_farmer), db: AsyncSession = Depends(get_db)):
+    expense = await db.get(Expense, expense_id)
+    if not expense or expense.farmer_id != current_user.id:
+        raise HTTPException(404, "Expense not found")
+    await db.delete(expense)
+    await db.commit()
+
+
+
 @router.get("/profit")
 async def profit(current_user: User = Depends(require_farmer), db: AsyncSession = Depends(get_db)):
     inventory = await db.scalar(select(func.coalesce(func.sum(FarmerInventory.quantity), 0)).where(FarmerInventory.farmer_id == current_user.id, FarmerInventory.is_active == True))

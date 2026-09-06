@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import {
   LayoutDashboard, TrendingUp, Scale, Users, Camera, Archive, Sparkles,
-  PiggyBank, MessageSquare, CalendarDays, LogOut, Leaf, Moon, Sun
+  PiggyBank, MessageSquare, CalendarDays, LogOut, Leaf, Moon, Sun, ShieldCheck
 } from 'lucide-react'
 import LanguageSwitcher from './LanguageSwitcher'
 import DemoBanner from './DemoBanner'
@@ -43,6 +43,7 @@ export default function Layout() {
     { to: '/income',       icon: PiggyBank,        label: t('nav.income') },
     { to: '/ai',           icon: MessageSquare,    label: t('nav.ai_assistant') },
     { to: '/farm-planner', icon: CalendarDays,     label: 'Farm Planner' },
+    { to: '/admin',        icon: ShieldCheck,      label: 'Admin Portal' },
   ]
 
   return (

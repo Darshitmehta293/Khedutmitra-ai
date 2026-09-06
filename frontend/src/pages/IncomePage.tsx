@@ -1,22 +1,78 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { farmerService, marketService } from '../services/api'
-import { DashboardData, RevenueScenario } from '../types'
+import { farmerService, intelligenceService } from '../services/api'
+import { DashboardData } from '../types'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts'
-import { Loader2, TrendingUp } from 'lucide-react'
+import { Loader2, TrendingUp, DollarSign, Trash2, Plus } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`
+
+const EXPENSE_CATEGORIES = ['Seed', 'Fertilizer', 'Pesticide', 'Irrigation', 'Labor', 'Transport', 'Storage', 'Other']
 
 export default function IncomePage() {
   const { t } = useTranslation()
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Expense state
+  const [expenses, setExpenses] = useState<any[]>([])
+  const [category, setCategory] = useState('Seed')
+  const [amount, setAmount] = useState('')
+  const [notes, setNotes] = useState('')
+  const [addingExpense, setAddingExpense] = useState(false)
+
+  const loadExpenses = async () => {
+    try {
+      const res = await intelligenceService.getExpenses()
+      setExpenses(res.data || [])
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   useEffect(() => {
-    farmerService.getDashboard().then(r => setData(r.data)).finally(() => setLoading(false))
+    Promise.all([
+      farmerService.getDashboard().then(r => setData(r.data)),
+      loadExpenses(),
+    ]).finally(() => setLoading(false))
   }, [])
 
+  const handleAddExpense = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!amount || parseFloat(amount) <= 0) {
+      toast.error('Enter a valid amount')
+      return
+    }
+    setAddingExpense(true)
+    try {
+      await intelligenceService.createExpense({ category, amount: parseFloat(amount), notes })
+      toast.success('Expense recorded')
+      setAmount('')
+      setNotes('')
+      loadExpenses()
+    } catch (e: any) {
+      toast.error(e.response?.data?.detail || 'Failed to add expense')
+    } finally {
+      setAddingExpense(false)
+    }
+  }
+
+  const handleDeleteExpense = async (id: string) => {
+    try {
+      await intelligenceService.deleteExpense(id)
+      toast.success('Expense removed')
+      loadExpenses()
+    } catch (e) {
+      toast.error('Failed to remove expense')
+    }
+  }
+
   if (loading) return <div className="flex justify-center h-40 items-center"><Loader2 className="animate-spin text-primary" size={28} /></div>
+
+  const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
+  const estVal = data?.current_estimated_value || 0
+  const netProfit = estVal - totalExpenses
 
   const scenarioData = (data?.revenue_scenarios || []).map((s, i) => ({
     name: s.label,
@@ -40,9 +96,9 @@ export default function IncomePage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: t('income.current_value'), val: fmt(data?.current_estimated_value || 0), color: 'text-gray-900' },
-          { label: '7-Day Value', val: fmt(data?.expected_value_7d || 0), color: 'text-primary' },
-          { label: t('income.expected_gain'), val: `+${fmt(data?.potential_gain || 0)}`, color: 'text-green-600' },
+          { label: t('income.current_value'), val: fmt(estVal), color: 'text-gray-900' },
+          { label: 'Total Expenses', val: fmt(totalExpenses), color: 'text-red-600' },
+          { label: 'Estimated Net Profit', val: fmt(netProfit), color: netProfit >= 0 ? 'text-primary' : 'text-red-600' },
           { label: 'Inventory', val: `${data?.total_inventory_quintals || 0}q`, color: 'text-gray-700' },
         ].map(({ label, val, color }) => (
           <div key={label} className="card">
@@ -50,6 +106,56 @@ export default function IncomePage() {
             <div className={`text-xl font-black ${color}`}>{val}</div>
           </div>
         ))}
+      </div>
+
+      {/* Add Expense & History */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleAddExpense} className="card space-y-3">
+          <h2 className="font-bold text-gray-900 flex items-center gap-2">
+            <DollarSign size={18} className="text-primary" /> Log Farm Expense
+          </h2>
+          <div>
+            <label className="text-xs text-gray-600 font-medium">Category</label>
+            <select value={category} onChange={e => setCategory(e.target.value)} className="select-field">
+              {EXPENSE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-600 font-medium">Amount (₹)</label>
+            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="input-field" placeholder="e.g. 2500" required />
+          </div>
+          <div>
+            <label className="text-xs text-gray-600 font-medium">Notes (optional)</label>
+            <input type="text" value={notes} onChange={e => setNotes(e.target.value)} className="input-field" placeholder="Details or vendor" />
+          </div>
+          <button type="submit" disabled={addingExpense} className="btn-primary w-full flex items-center justify-center gap-1">
+            <Plus size={16} /> Add Expense
+          </button>
+        </form>
+
+        <div className="card space-y-3">
+          <h2 className="font-bold text-gray-900">Expense History</h2>
+          {expenses.length === 0 ? (
+            <div className="text-xs text-gray-400 text-center py-8">No expenses logged yet</div>
+          ) : (
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              {expenses.map(e => (
+                <div key={e.id} className="flex items-center justify-between border-b pb-2 pt-1 text-sm">
+                  <div>
+                    <div className="font-bold text-gray-800">{e.category}</div>
+                    {e.notes && <div className="text-xs text-gray-400">{e.notes}</div>}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-red-600">{fmt(e.amount)}</span>
+                    <button onClick={() => handleDeleteExpense(e.id)} className="text-gray-400 hover:text-red-600 transition">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Revenue Scenarios Chart */}
@@ -66,45 +172,6 @@ export default function IncomePage() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-          <p className="text-xs text-gray-400 text-center mt-2">Net revenue after all estimated costs</p>
-        </div>
-      )}
-
-      {/* Crop Breakdown Pie */}
-      {cropPieData.length > 0 && (
-        <div className="card">
-          <h2 className="font-semibold mb-3">Inventory Breakdown</h2>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie data={cropPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}
-                label={({ name, value }) => `${name}: ${value}q`} labelLine>
-                {cropPieData.map((d, i) => <Cell key={i} fill={d.fill} />)}
-              </Pie>
-              <Legend />
-              <Tooltip formatter={(v: any) => [`${v} quintals`]} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Top Buyer Opportunities */}
-      {data?.top_buyers && data.top_buyers.length > 0 && (
-        <div className="card">
-          <h2 className="font-semibold mb-3">Best Buyer Prices</h2>
-          <div className="space-y-2">
-            {data.top_buyers.map((b, i) => (
-              <div key={i} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5">
-                <div>
-                  <div className="text-sm font-medium">{b.buyer_name}</div>
-                  <div className="text-xs text-gray-400">{b.district} • {b.distance_km}km</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-primary">{fmt(b.offered_price)}/q</div>
-                  <div className="text-xs text-gray-400">{b.match_score.toFixed(0)}% match</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>

@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { aiService } from '../services/api'
 import { QualityAssessmentResult } from '../types'
-import { Upload, Camera, AlertTriangle, Loader2, CheckCircle } from 'lucide-react'
+import { Upload, Camera, AlertTriangle, Loader2, CheckCircle, History } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const CROPS = [
@@ -23,7 +23,25 @@ export default function QualityPage() {
   const [preview, setPreview] = useState<string | null>(null)
   const [result, setResult] = useState<QualityAssessmentResult | null>(null)
   const [loading, setLoading] = useState(false)
+  const [history, setHistory] = useState<any[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const loadHistory = async () => {
+    setHistoryLoading(true)
+    try {
+      const res = await aiService.getQualityHistory()
+      setHistory(res.data || [])
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setHistoryLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadHistory()
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -48,6 +66,8 @@ export default function QualityPage() {
       if (image) fd.append('image', image)
       const res = await aiService.qualityAssessment(fd)
       setResult(res.data)
+      toast.success('Quality assessment saved!')
+      loadHistory()
     } catch (e: any) {
       toast.error(e.response?.data?.detail || 'Assessment failed')
     } finally {
@@ -151,6 +171,30 @@ export default function QualityPage() {
           </div>
         </div>
       )}
+
+      {/* History */}
+      <div className="card space-y-3">
+        <div className="flex items-center gap-2 font-bold text-gray-800">
+          <History size={18} /> Assessment History
+        </div>
+        {historyLoading ? (
+          <div className="py-4 text-center text-gray-400">Loading history...</div>
+        ) : history.length === 0 ? (
+          <div className="text-sm text-gray-400 text-center py-4">No past assessments saved yet</div>
+        ) : (
+          <div className="space-y-2">
+            {history.map(h => (
+              <div key={h.id} className="flex items-center justify-between border-b pb-2 pt-1 text-sm">
+                <div>
+                  <span className="font-bold capitalize">{h.crop_type}</span>
+                  <span className="text-xs text-gray-500 ml-2">Grade {h.suggested_grade} ({Math.round(h.confidence * 100)}%)</span>
+                </div>
+                <span className="text-xs text-gray-400">{new Date(h.created_at).toLocaleDateString()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

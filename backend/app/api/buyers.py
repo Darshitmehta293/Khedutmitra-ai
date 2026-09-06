@@ -279,3 +279,52 @@ async def create_buyer_profile(
     db.add(profile)
     await db.commit()
     return {"message": "Buyer profile created", "id": profile.id}
+
+
+@router.get("/my-listings")
+async def get_my_listings(
+    current_user: User = Depends(require_buyer),
+    db: AsyncSession = Depends(get_db),
+):
+    profile = await db.scalar(select(BuyerProfile).where(BuyerProfile.user_id == current_user.id))
+    if not profile:
+        return []
+    result = await db.execute(
+        select(BuyerListing).options(selectinload(BuyerListing.crop))
+        .where(BuyerListing.buyer_profile_id == profile.id)
+        .order_by(BuyerListing.created_at.desc())
+    )
+    listings = result.scalars().all()
+    return [
+        {
+            "id": l.id,
+            "crop_id": l.crop_id,
+            "crop_name": l.crop.name if l.crop else l.crop_id,
+            "min_quantity": l.min_quantity,
+            "max_quantity": l.max_quantity,
+            "offered_price": float(l.offered_price),
+            "quality_requirement": l.quality_requirement.value,
+            "district": l.district,
+            "delivery_days": l.delivery_days,
+            "is_active": l.is_active,
+            "created_at": l.created_at.isoformat(),
+        }
+        for l in listings
+    ]
+
+
+@router.delete("/listings/{listing_id}", status_code=204)
+async def deactivate_listing(
+    listing_id: str,
+    current_user: User = Depends(require_buyer),
+    db: AsyncSession = Depends(get_db),
+):
+    profile = await db.scalar(select(BuyerProfile).where(BuyerProfile.user_id == current_user.id))
+    if not profile:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    listing = await db.get(BuyerListing, listing_id)
+    if not listing or listing.buyer_profile_id != profile.id:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    listing.is_active = False
+    await db.commit()
+

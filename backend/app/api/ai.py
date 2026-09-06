@@ -12,7 +12,7 @@ from sqlalchemy.orm import selectinload
 
 from app.database.session import get_db
 from app.api.deps import get_current_user, require_farmer
-from app.models.models import User, Recommendation
+from app.models.models import User, Recommendation, Conversation, Message, QualityAssessment, Language
 from app.agents.orchestrator import get_orchestrator
 from app.schemas.schemas import ChatRequest, RecommendationRequest
 from app.core.config import settings
@@ -36,6 +36,7 @@ router = APIRouter(prefix="/ai", tags=["ai"])
 async def chat(
     payload: ChatRequest,
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     orch = get_orchestrator()
     session_id = payload.session_id or str(uuid.uuid4())
@@ -47,7 +48,102 @@ async def chat(
         quantity=payload.quantity,
         district=payload.district or "Ahmedabad",
     )
+
+    # Persist chat history if user authenticated
+    try:
+        conv_res = await db.execute(
+            select(Conversation).where(
+                Conversation.farmer_id == current_user.id,
+                Conversation.session_id == session_id
+            )
+        )
+        conv = conv_res.scalar_one_or_none()
+        if not conv:
+            conv = Conversation(farmer_id=current_user.id, session_id=session_id)
+            db.add(conv)
+            await db.flush()
+
+        lang = Language.ENGLISH
+        try:
+            lang = Language(payload.language.value)
+        except Exception:
+            pass
+
+        user_msg = Message(
+            conversation_id=conv.id,
+            role="user",
+            message=payload.message,
+            language=lang,
+        )
+        asst_msg = Message(
+            conversation_id=conv.id,
+            role="assistant",
+            message=str(result.get("response", "")),
+            agent_used=result.get("agent_used", "orchestrator"),
+            language=lang,
+        )
+        db.add(user_msg)
+        db.add(asst_msg)
+        await db.commit()
+    except Exception as e:
+        logger.warning("Failed to persist chat message", error=str(e))
+
     return result
+
+
+@router.get("/conversations")
+async def list_conversations(
+    current_user: User = Depends(require_farmer),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Conversation)
+        .options(selectinload(Conversation.messages))
+        .where(Conversation.farmer_id == current_user.id)
+        .order_by(Conversation.created_at.desc())
+    )
+    convs = result.scalars().all()
+    out = []
+    for c in convs:
+        last_msg = c.messages[-1].message if c.messages else ""
+        out.append({
+            "id": c.id,
+            "session_id": c.session_id,
+            "message_count": len(c.messages),
+            "last_message": last_msg,
+            "created_at": c.created_at.isoformat(),
+        })
+    return out
+
+
+@router.get("/conversations/{session_id}")
+async def get_conversation_messages(
+    session_id: str,
+    current_user: User = Depends(require_farmer),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Conversation)
+        .options(selectinload(Conversation.messages))
+        .where(Conversation.farmer_id == current_user.id, Conversation.session_id == session_id)
+    )
+    conv = result.scalar_one_or_none()
+    if not conv:
+        return {"session_id": session_id, "messages": []}
+
+    return {
+        "session_id": session_id,
+        "messages": [
+            {
+                "id": m.id,
+                "role": m.role,
+                "message": m.message,
+                "agent_used": m.agent_used,
+                "created_at": m.created_at.isoformat(),
+            }
+            for m in conv.messages
+        ],
+    }
 
 
 @router.post("/recommendation")
@@ -166,8 +262,10 @@ async def get_forecast(
 @router.post("/quality-assessment")
 async def quality_assessment(
     crop_type: str = Form(...),
+    inventory_id: Optional[str] = Form(None),
     image: Optional[UploadFile] = File(None),
     current_user: User = Depends(require_farmer),
+    db: AsyncSession = Depends(get_db),
 ):
     image_bytes = None
     if image:
@@ -180,7 +278,58 @@ async def quality_assessment(
 
     orch = get_orchestrator()
     result = await orch.assess_quality(crop_type=crop_type, image_bytes=image_bytes)
+
+    try:
+        qa = QualityAssessment(
+            farmer_id=current_user.id,
+            inventory_id=inventory_id,
+            crop_type=crop_type,
+            assessment_result=json.dumps(result, default=str),
+            confidence=result.get("confidence", 0.85),
+            suggested_grade=result.get("grade", "B"),
+            disclaimer=result.get("disclaimer"),
+            provider=result.get("provider", "mock"),
+        )
+        db.add(qa)
+        await db.commit()
+        result["assessment_id"] = qa.id
+    except Exception as e:
+        logger.warning("Failed to persist quality assessment", error=str(e))
+
     return result
+
+
+@router.get("/quality-assessments")
+async def list_quality_assessments(
+    limit: int = 20,
+    current_user: User = Depends(require_farmer),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(QualityAssessment)
+        .where(QualityAssessment.farmer_id == current_user.id)
+        .order_by(QualityAssessment.created_at.desc())
+        .limit(limit)
+    )
+    rows = result.scalars().all()
+    out = []
+    for r in rows:
+        parsed_res = {}
+        if r.assessment_result:
+            try:
+                parsed_res = json.loads(r.assessment_result)
+            except Exception:
+                pass
+        out.append({
+            "id": r.id,
+            "crop_type": r.crop_type,
+            "suggested_grade": r.suggested_grade,
+            "confidence": r.confidence,
+            "provider": r.provider,
+            "details": parsed_res,
+            "created_at": r.created_at.isoformat(),
+        })
+    return out
 
 
 @router.get("/demo-scenario")

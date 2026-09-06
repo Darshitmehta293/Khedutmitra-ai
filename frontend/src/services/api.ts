@@ -65,9 +65,12 @@ export const aiService = {
     api.post('/ai/forecast', null, { params: { crop_id: cropId, market_id: marketId, horizon_days: horizonDays } }),
   qualityAssessment: (formData: FormData) =>
     api.post('/ai/quality-assessment', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  getQualityHistory: (limit = 20) => api.get('/ai/quality-assessments', { params: { limit } }),
   demoScenario: (cropId = 'crop_cotton', quantity = 50, district = 'Ahmedabad') =>
     api.get('/ai/demo-scenario', { params: { crop_id: cropId, quantity, district } }),
   getRecommendationHistory: (limit = 20) => api.get('/ai/recommendations', { params: { limit } }),
+  getConversations: () => api.get('/ai/conversations'),
+  getConversationMessages: (sessionId: string) => api.get(`/ai/conversations/${sessionId}`),
 }
 
 // ─── Buyers ──────────────────────────────────────────────────
@@ -79,6 +82,8 @@ export const buyerService = {
   updateOffer: (id: string, status: string) => api.put(`/buyers/offers/${id}`, null, { params: { new_status: status } }),
   listOffers: () => api.get('/buyers/offers'),
   createListing: (data: object) => api.post('/buyers/listings', data),
+  getMyListings: () => api.get('/buyers/my-listings'),
+  deleteListing: (id: string) => api.delete(`/buyers/listings/${id}`),
 }
 
 // ─── Admin ────────────────────────────────────────────────────
@@ -102,6 +107,8 @@ export const intelligenceService = {
   getProfile: () => api.get('/intelligence/profile'),
   updateProfile: (data: object) => api.put('/intelligence/profile', data),
   createExpense: (data: object) => api.post('/intelligence/expenses', data),
+  getExpenses: () => api.get('/intelligence/expenses'),
+  deleteExpense: (id: string) => api.delete(`/intelligence/expenses/${id}`),
   getProfit: () => api.get('/intelligence/profit'),
   getRisk: (cropId: string, district: string) => api.get('/intelligence/risk', { params: { crop_id: cropId, district } }),
   getSchemes: () => api.get('/intelligence/schemes'),
