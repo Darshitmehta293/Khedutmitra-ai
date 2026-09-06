@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
-import { Leaf, Eye, EyeOff } from 'lucide-react'
+import { Leaf, Eye, EyeOff, Sun, Moon } from 'lucide-react'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 
 export default function LoginPage() {
@@ -14,6 +14,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('km_theme') === 'dark')
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode)
+    localStorage.setItem('km_theme', darkMode ? 'dark' : 'light')
+  }, [darkMode])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,19 +51,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-surface dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex flex-col items-center justify-center px-4 py-10 transition-colors">
       <div className="w-full max-w-sm">
         <div className="flex items-center justify-between mb-8">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
               <Leaf className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-gray-900">KhedutMitra AI</span>
+            <span className="font-bold text-gray-900 dark:text-gray-100">KhedutMitra AI</span>
           </Link>
-          <LanguageSwitcher />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setDarkMode(d => !d)}
+              className="p-2 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors"
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <LanguageSwitcher />
+          </div>
         </div>
 
-        <div className="card">
+        <div className="card bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-xl">
           <h1 className="text-xl font-bold mb-6">{t('auth.login_title')}</h1>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
