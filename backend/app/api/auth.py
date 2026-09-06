@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.database.session import get_db
 from app.models.models import User, FarmerProfile, BuyerProfile, UserRole, Language
 from app.schemas.schemas import RegisterRequest, LoginRequest, TokenResponse, UserOut
-from app.core.security import hash_password, verify_password, create_access_token
+from app.core.security import hash_password, verify_password, create_access_token, PRECOMPUTED_DEMO_HASH
 from app.api.deps import get_current_user
 from app.core.logging import logger
 from app.core.config import settings
@@ -25,7 +25,7 @@ async def _ensure_demo_user(payload: LoginRequest, db: AsyncSession) -> User | N
         name="Ramesh Patel",
         phone="9876543210",
         email="9876543210@demo.khedutmitra.ai",
-        password_hash=hash_password("demo1234"),
+        password_hash=PRECOMPUTED_DEMO_HASH,
         role=UserRole.FARMER,
         language=Language.GUJARATI,
         location="Ahmedabad",

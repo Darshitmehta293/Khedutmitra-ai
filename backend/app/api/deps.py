@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 from app.database.session import get_db
 from app.models.models import User, FarmerProfile, UserRole, Language
-from app.core.security import decode_access_token, hash_password
+from app.core.security import decode_access_token, hash_password, PRECOMPUTED_DEMO_HASH
 from app.core.config import settings
 
 bearer_scheme = HTTPBearer()
@@ -32,7 +32,7 @@ async def get_current_user(
             name="Ramesh Patel",
             phone="9876543210",
             email="9876543210@demo.khedutmitra.ai",
-            password_hash=hash_password("demo1234"),
+            password_hash=PRECOMPUTED_DEMO_HASH,
             role=UserRole.FARMER,
             language=Language.GUJARATI,
             location="Ahmedabad",

@@ -10,8 +10,11 @@ from jose import JWTError, jwt
 from app.core.config import settings
 
 
+PRECOMPUTED_DEMO_HASH = "$2b$10$ighFIWtDcethF1pFYA/OvOfR2IF/moG2dRAbmSC7L337Aj.pwVw7y"
+
+
 def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=12)).decode("utf-8")
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=10)).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
