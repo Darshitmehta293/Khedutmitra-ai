@@ -33,24 +33,48 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="py-16 px-4 text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 bg-green-50 text-primary text-sm font-medium px-4 py-1.5 rounded-full mb-6">
-          <Leaf size={14} /> IBM Granite + AI Agents
+      <section className="relative py-24 px-4 text-center overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2574&auto=format&fit=crop"
+            alt="cinematic farm crops"
+            className="w-full h-full object-cover cinematic-bg"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
         </div>
-        <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-4 leading-tight">
-          {t('tagline')}
-        </h1>
-        <p className="text-lg text-gray-500 mb-8 max-w-2xl mx-auto">
-          AI-powered market intelligence for Gujarat's cotton and groundnut farmers.
-          Real-time mandi prices, price forecasting, direct buyer connections.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button onClick={() => navigate('/register')} className="btn-primary flex items-center justify-center gap-2">
-            Start Selling Smarter <ArrowRight size={18} />
-          </button>
-          <button onClick={() => navigate('/demo')} className="btn-secondary flex items-center justify-center gap-2">
-            Watch Demo Scenario
-          </button>
+
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+          <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold px-3 py-1.5 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            Stitch AI Design
+          </span>
+        </div>
+
+        <div className="absolute top-20 left-8 text-5xl opacity-70 float-anim select-none pointer-events-none hidden md:block">🌾</div>
+        <div className="absolute top-28 right-10 text-4xl opacity-60 float-anim select-none pointer-events-none hidden md:block" style={{animationDelay: '1.2s'}}>🌿</div>
+        <div className="absolute bottom-16 left-16 text-3xl opacity-50 float-anim select-none pointer-events-none hidden md:block" style={{animationDelay: '2.4s'}}>🍃</div>
+        <div className="absolute bottom-24 right-20 text-4xl opacity-60 float-anim select-none pointer-events-none hidden md:block" style={{animationDelay: '0.6s'}}>🌱</div>
+
+        <div className="relative z-10 max-w-4xl mx-auto hero-enter">
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+            <Leaf size={14} /> IBM Granite + AI Agents
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black text-white mb-4 leading-tight drop-shadow-lg">
+            {t('tagline')}
+          </h1>
+          <p className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto drop-shadow">
+            AI-powered market intelligence for Gujarat's cotton and groundnut farmers.
+            Real-time mandi prices, price forecasting, direct buyer connections.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button onClick={() => navigate('/register')} className="btn-primary flex items-center justify-center gap-2 relative overflow-hidden">
+              <span className="relative z-10 flex items-center gap-2">Start Selling Smarter <ArrowRight size={18} /></span>
+              <span className="absolute inset-0 shimmer-bg opacity-30" />
+            </button>
+            <button onClick={() => navigate('/demo')} className="btn-manus-secondary flex items-center justify-center gap-2 text-white border-white/30 hover:bg-white/10">
+              Watch Demo Scenario
+            </button>
+          </div>
         </div>
       </section>
 

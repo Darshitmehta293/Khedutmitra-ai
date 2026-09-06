@@ -62,8 +62,47 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes hero-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-14px); }
+}
+
+@keyframes cinematic-zoom {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 main > .p-4 {
   animation: page-enter 420ms ease-out both;
+}
+
+.hero-enter {
+  animation: hero-enter 800ms ease-out both;
+}
+
+.float-anim {
+  animation: float 5s ease-in-out infinite;
+}
+
+.cinematic-bg {
+  animation: cinematic-zoom 20s ease-in-out infinite;
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
 }
 
 /* Smooth scrollbar */
