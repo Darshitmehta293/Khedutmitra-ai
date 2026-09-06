@@ -100,7 +100,7 @@ export default function QualityPage() {
       </div>
 
       {/* Crop Selector */}
-      <div className="card-manus">
+      <div className="card-manus card-hover anim-fade-in-up">
         <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2.5">Select Target Crop</label>
         <div className="grid grid-cols-3 gap-3">
           {CROPS.map(c => (
@@ -108,7 +108,7 @@ export default function QualityPage() {
               className={`py-3 px-4 rounded-xl border font-bold text-sm transition-all duration-200 ${
                 cropType === c.id
                   ? 'border-emerald-500 bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20 scale-[1.02]'
-                  : 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-emerald-500/40'
+                  : 'border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-emerald-500/40 hover:scale-[1.01]'
               }`}
             >
               {c.label}
@@ -121,7 +121,7 @@ export default function QualityPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Viewport Column */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="card-manus relative overflow-hidden group">
+          <div className="card-manus relative overflow-hidden group anim-fade-in-up stagger-1">
             {/* Viewport Frame */}
             <div className="relative aspect-video rounded-xl bg-gray-950 border border-emerald-500/30 overflow-hidden flex items-center justify-center">
               {preview ? (
@@ -173,13 +173,13 @@ export default function QualityPage() {
         {/* Right Diagnosis Column */}
         <div className="lg:col-span-5 space-y-4">
           {result ? (
-            <div className="card-manus space-y-4 border-2 border-emerald-500/30">
+            <div className="card-manus space-y-4 border-2 border-emerald-500/30 anim-scale-in">
               <div className="flex items-center justify-between border-b border-emerald-500/10 pb-3">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500">Diagnosis Confidence</span>
                   <div className="text-3xl font-black text-gray-900 dark:text-gray-100">Grade {result.suggested_grade}</div>
                 </div>
-                <div className="w-14 h-14 rounded-full bg-emerald-500/10 border-2 border-emerald-500 flex items-center justify-center text-emerald-500 font-black text-sm">
+                <div className="w-14 h-14 rounded-full bg-emerald-500/10 border-2 border-emerald-500 flex items-center justify-center text-emerald-500 font-black text-sm anim-pulse-glow">
                   {Math.round(result.confidence * 100)}%
                 </div>
               </div>
@@ -221,12 +221,12 @@ export default function QualityPage() {
               </div>
 
               {/* Instant Certificate Button */}
-              <button onClick={generateCertificate} className="btn-manus-primary w-full text-xs">
+              <button onClick={generateCertificate} className="btn-manus-primary w-full text-xs transition hover:scale-[1.01]">
                 <FileCheck size={16} /> Generate Buyer Verified Quality Certificate
               </button>
             </div>
           ) : (
-            <div className="card-manus text-center py-10 text-gray-400 space-y-3">
+            <div className="card-manus text-center py-10 text-gray-400 space-y-3 anim-fade-in-up">
               <Sparkles size={36} className="mx-auto text-emerald-500/40" />
               <div className="text-sm font-semibold">No Scan Loaded</div>
               <p className="text-xs max-w-xs mx-auto">Upload a crop photo and run diagnostic scan to view IBM Granite quality certificate and treatment plan.</p>
@@ -236,7 +236,7 @@ export default function QualityPage() {
       </div>
 
       {/* History Table */}
-      <div className="card-manus space-y-4">
+      <div className="card-manus space-y-4 anim-fade-in-up stagger-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-gray-900 dark:text-gray-100 text-sm">
             <History size={16} className="text-emerald-500" /> Recent Diagnostic Scans

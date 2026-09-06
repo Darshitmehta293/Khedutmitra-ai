@@ -43,18 +43,6 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
         </div>
 
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-          <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold px-3 py-1.5 rounded-full">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-            Stitch AI Design
-          </span>
-        </div>
-
-        <div className="absolute top-20 left-8 text-5xl opacity-70 float-anim select-none pointer-events-none hidden md:block">🌾</div>
-        <div className="absolute top-28 right-10 text-4xl opacity-60 float-anim select-none pointer-events-none hidden md:block" style={{animationDelay: '1.2s'}}>🌿</div>
-        <div className="absolute bottom-16 left-16 text-3xl opacity-50 float-anim select-none pointer-events-none hidden md:block" style={{animationDelay: '2.4s'}}>🍃</div>
-        <div className="absolute bottom-24 right-20 text-4xl opacity-60 float-anim select-none pointer-events-none hidden md:block" style={{animationDelay: '0.6s'}}>🌱</div>
-
         <div className="relative z-10 max-w-4xl mx-auto hero-enter">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium px-4 py-1.5 rounded-full mb-6">
             <Leaf size={14} /> IBM Granite + AI Agents
@@ -72,7 +60,7 @@ export default function LandingPage() {
               <span className="absolute inset-0 shimmer-bg opacity-30" />
             </button>
             <button onClick={() => navigate('/demo')} className="btn-manus-secondary flex items-center justify-center gap-2 text-white border-white/30 hover:bg-white/10">
-              Watch Demo Scenario
+              <span className="relative z-10 flex items-center gap-2">Watch Demo Scenario</span>
             </button>
           </div>
         </div>

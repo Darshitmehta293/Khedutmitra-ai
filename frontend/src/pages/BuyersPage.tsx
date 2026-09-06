@@ -202,7 +202,7 @@ export default function BuyersPage() {
       {/* Marketplace Tab */}
       {activeTab === 'marketplace' && (
         <>
-          <div className="card">
+          <div className="card card-hover anim-fade-in-up">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <select value={cropId} onChange={e => setCropId(e.target.value)} className="select-field">
                 {CROPS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
@@ -228,7 +228,7 @@ export default function BuyersPage() {
           ) : (
             <div className="space-y-3">
               {matches.map((m, i) => (
-                <div key={m.listing_id} className={`card ${i === 0 ? 'border-primary/40 bg-green-50/30' : ''}`}>
+                <div key={m.listing_id} className={`card card-hover anim-fade-in-up ${i === 0 ? 'border-primary/40 bg-green-50/30' : ''}`} style={{animationDelay: `${i * 60}ms`}}>
                   {i === 0 && <div className="text-xs font-bold text-primary mb-2">⭐ Best Match</div>}
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="flex-1">
@@ -258,7 +258,7 @@ export default function BuyersPage() {
                     <button
                       onClick={() => sendEnquiry(m)}
                       disabled={submittingId === m.listing_id || contactedId === m.listing_id}
-                      className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all ${
+                      className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-all hover:scale-[1.01] ${
                         contactedId === m.listing_id
                           ? 'bg-primary text-white border-primary'
                           : 'border-primary text-primary hover:bg-primary/5'

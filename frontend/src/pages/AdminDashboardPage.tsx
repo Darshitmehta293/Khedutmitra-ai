@@ -20,39 +20,39 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between anim-fade-in-up">
         <div>
           <h1 className="text-2xl font-black text-gray-900 flex items-center gap-2">
             <ShieldCheck className="text-primary" /> Admin Control Center
           </h1>
           <p className="text-sm text-gray-500">Platform performance, system health, and analytics</p>
         </div>
-        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold flex items-center gap-1">
+        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold flex items-center gap-1 anim-pulse-glow">
           <CheckCircle size={14} /> System Healthy
         </span>
       </div>
 
       {/* Analytics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="card">
+        <div className="card card-hover anim-fade-in-up stagger-1">
           <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
             <Users size={16} /> Total Registered Users
           </div>
           <div className="text-2xl font-black text-gray-900">{analytics?.users ?? 0}</div>
         </div>
-        <div className="card">
+        <div className="card card-hover anim-fade-in-up stagger-2">
           <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
             <ShoppingBag size={16} /> Total Marketplace Offers
           </div>
           <div className="text-2xl font-black text-primary">{analytics?.offers ?? 0}</div>
         </div>
-        <div className="card">
+        <div className="card card-hover anim-fade-in-up stagger-3">
           <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
             <Activity size={16} /> Tracked Expenses (₹)
           </div>
           <div className="text-2xl font-black text-gray-900">₹{(analytics?.tracked_expenses ?? 0).toLocaleString('en-IN')}</div>
         </div>
-        <div className="card">
+        <div className="card card-hover anim-fade-in-up stagger-4">
           <div className="flex items-center gap-2 text-gray-500 text-xs mb-1">
             <Database size={16} /> Database Driver
           </div>
@@ -61,11 +61,11 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* AI Agents Status */}
-      <div className="card space-y-3">
+      <div className="card card-hover anim-fade-in-up stagger-2">
         <h2 className="font-bold text-gray-900">Agent Performance & Orchestration</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {Object.entries(analytics?.agent_performance || {}).map(([agent, status]) => (
-            <div key={agent} className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between">
+            <div key={agent} className="p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between transition hover:scale-105">
               <span className="font-semibold text-gray-700 capitalize">{agent} Agent</span>
               <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-bold capitalize">
                 {String(status)}

@@ -83,6 +83,36 @@
   100% { background-position: 200% 0; }
 }
 
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 main > .p-4 {
   animation: page-enter 420ms ease-out both;
 }
@@ -103,6 +133,48 @@ main > .p-4 {
   background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 100%);
   background-size: 200% 100%;
   animation: shimmer 3s linear infinite;
+}
+
+.anim-fade-in-up {
+  animation: fade-in-up 600ms ease-out both;
+}
+
+.anim-scale-in {
+  animation: scale-in 500ms ease-out both;
+}
+
+.anim-slide-left {
+  animation: slide-in-left 500ms ease-out both;
+}
+
+.anim-slide-right {
+  animation: slide-in-right 500ms ease-out both;
+}
+
+.anim-pulse-glow {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+.anim-count {
+  animation: count-up 400ms ease-out both;
+}
+
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
+.stagger-7 { animation-delay: 350ms; }
+.stagger-8 { animation-delay: 400ms; }
+
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -10px rgba(5, 150, 105, 0.18);
 }
 
 /* Smooth scrollbar */

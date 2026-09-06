@@ -100,8 +100,8 @@ export default function IncomePage() {
           { label: 'Total Expenses', val: fmt(totalExpenses), color: 'text-red-600' },
           { label: 'Estimated Net Profit', val: fmt(netProfit), color: netProfit >= 0 ? 'text-primary' : 'text-red-600' },
           { label: 'Inventory', val: `${data?.total_inventory_quintals || 0}q`, color: 'text-gray-700' },
-        ].map(({ label, val, color }) => (
-          <div key={label} className="card">
+        ].map(({ label, val, color }, i) => (
+          <div key={label} className={`card card-hover anim-fade-in-up stagger-${i + 1}`}>
             <div className="text-xs text-gray-500 mb-1">{label}</div>
             <div className={`text-xl font-black ${color}`}>{val}</div>
           </div>
@@ -110,7 +110,7 @@ export default function IncomePage() {
 
       {/* Add Expense & History */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <form onSubmit={handleAddExpense} className="card space-y-3">
+        <form onSubmit={handleAddExpense} className="card card-hover space-y-3 anim-fade-in-up stagger-1">
           <h2 className="font-bold text-gray-900 flex items-center gap-2">
             <DollarSign size={18} className="text-primary" /> Log Farm Expense
           </h2>
@@ -133,14 +133,14 @@ export default function IncomePage() {
           </button>
         </form>
 
-        <div className="card space-y-3">
+        <div className="card card-hover space-y-3 anim-fade-in-up stagger-2">
           <h2 className="font-bold text-gray-900">Expense History</h2>
           {expenses.length === 0 ? (
             <div className="text-xs text-gray-400 text-center py-8">No expenses logged yet</div>
           ) : (
             <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
               {expenses.map(e => (
-                <div key={e.id} className="flex items-center justify-between border-b pb-2 pt-1 text-sm">
+                <div key={e.id} className="flex items-center justify-between border-b pb-2 pt-1 text-sm transition hover:translate-x-1">
                   <div>
                     <div className="font-bold text-gray-800">{e.category}</div>
                     {e.notes && <div className="text-xs text-gray-400">{e.notes}</div>}
@@ -160,7 +160,7 @@ export default function IncomePage() {
 
       {/* Revenue Scenarios Chart */}
       {scenarioData.length > 0 && (
-        <div className="card">
+        <div className="card card-hover anim-fade-in-up stagger-3">
           <h2 className="font-semibold mb-4 flex items-center gap-2"><TrendingUp size={16} className="text-primary" /> {t('income.scenarios')}</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={scenarioData} barCategoryGap="30%">

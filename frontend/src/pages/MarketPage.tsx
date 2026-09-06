@@ -131,7 +131,7 @@ export default function MarketPage() {
       ) : priceData ? (
         <>
           {/* Price Hero */}
-          <div className="card bg-gradient-to-br from-green-50 to-teal-50 border-green-100">
+          <div className="card bg-gradient-to-br from-green-50 to-teal-50 border-green-100 anim-scale-in">
             <div className="flex items-start justify-between flex-wrap gap-4">
               <div>
                 <div className="text-sm text-gray-500 mb-1">{t('market.current_price')} — {priceData.primary_market_name}</div>
@@ -149,7 +149,7 @@ export default function MarketPage() {
                 { label: 'Modal', val: fmt(priceData.current_price) },
                 { label: t('market.max_price'), val: fmt(priceData.max_price) },
               ].map(({ label, val }) => (
-                <div key={label} className="bg-white/70 rounded-xl p-3 text-center">
+                <div key={label} className="bg-white/70 rounded-xl p-3 text-center transition hover:scale-[1.02]">
                   <div className="text-xs text-gray-500">{label}</div>
                   <div className="font-bold text-sm mt-0.5">{val}</div>
                 </div>
@@ -159,7 +159,7 @@ export default function MarketPage() {
 
           {/* Forecast */}
           {forecastData && (
-            <div className="card">
+            <div className="card card-hover anim-fade-in-up stagger-1">
               <div className="flex items-center justify-between mb-1">
                 <h2 className="font-semibold">{t('market.forecast_7d')}</h2>
                 <div className="text-xs text-gray-400">{Math.round(forecastData.confidence * 100)}% confidence</div>
@@ -193,7 +193,7 @@ export default function MarketPage() {
 
           {/* Historical chart */}
           {trendData.length > 0 && (
-            <div className="card">
+            <div className="card card-hover anim-fade-in-up stagger-2">
               <h2 className="font-semibold mb-3">30-Day Price History</h2>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={trendData}>
@@ -211,11 +211,11 @@ export default function MarketPage() {
 
           {/* Nearby Mandis */}
           {priceData.nearby_mandis?.length > 0 && (
-            <div className="card">
+            <div className="card card-hover anim-fade-in-up stagger-3">
               <h2 className="font-semibold mb-3">Nearby Mandi Prices</h2>
               <div className="space-y-2">
                 {priceData.nearby_mandis.map((m, i) => (
-                  <div key={i} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
+                  <div key={i} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 transition hover:translate-x-1">
                     <div>
                       <div className="font-medium text-sm">{m.market_name}</div>
                       <div className="text-xs text-gray-400">{m.arrivals_tonnes}t arrivals</div>

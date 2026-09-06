@@ -98,7 +98,7 @@ export default function SellOrStorePage() {
       </div>
 
       {/* Input Form */}
-      <div className="card">
+      <div className="card card-hover anim-fade-in-up">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Crop</label>
@@ -149,7 +149,7 @@ export default function SellOrStorePage() {
       {result && (
         <div className="space-y-4">
           {/* Recommendation Hero */}
-          <div className="card bg-gradient-to-br from-green-50 to-emerald-900/20 dark:from-emerald-900/30 dark:to-teal-900/20 border-green-100 dark:border-emerald-700/30">
+          <div className="card bg-gradient-to-br from-green-50 to-emerald-900/20 dark:from-emerald-900/30 dark:to-teal-900/20 border-green-100 dark:border-emerald-700/30 anim-scale-in">
             <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
               <div>
                 <div className="text-sm text-gray-500 mb-2">AI Recommendation</div>
@@ -164,7 +164,7 @@ export default function SellOrStorePage() {
               </div>
             </div>
 
-            <button onClick={downloadSummary} className="inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-white px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/5">
+            <button onClick={downloadSummary} className="inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-white px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/5 transition hover:scale-105">
               <Download size={14} /> Download summary
             </button>
 
@@ -182,7 +182,7 @@ export default function SellOrStorePage() {
           </div>
 
           {/* Financial Breakdown */}
-          <div className="card">
+          <div className="card card-hover anim-fade-in-up stagger-1">
             <h2 className="font-semibold mb-3 flex items-center gap-2"><TrendingUp size={16} className="text-primary" /> Financial Breakdown</h2>
             <div className="space-y-2">
               {[
@@ -195,7 +195,7 @@ export default function SellOrStorePage() {
                 { label: 'Quality Loss Cost', val: `-${fmt(result.quality_loss_cost)}`, highlight: false },
                 { label: t('sell_store.net_revenue'), val: fmt(result.expected_net_revenue), highlight: true },
               ].map(({ label, val, highlight }) => (
-                <div key={label} className={`flex justify-between py-2 ${highlight ? 'border-t border-primary/20 mt-1' : ''}`}>
+                <div key={label} className={`flex justify-between py-2 transition hover:translate-x-1 ${highlight ? 'border-t border-primary/20 mt-1' : ''}`}>
                   <span className={`text-sm ${highlight ? 'font-bold text-gray-900' : 'text-gray-600'}`}>{label}</span>
                   <span className={`text-sm font-semibold ${highlight ? 'text-primary' : 'text-gray-900'}`}>{val}</span>
                 </div>
@@ -204,7 +204,7 @@ export default function SellOrStorePage() {
           </div>
 
           {/* Granite Explanation */}
-          <div className="card border-blue-100 dark:border-blue-800/40 bg-blue-50 dark:bg-blue-900/20">
+          <div className="card border-blue-100 dark:border-blue-800/40 bg-blue-50 dark:bg-blue-900/20 anim-fade-in-up stagger-2">
             <div className="flex items-start gap-2">
               <Info size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />
               <div>
@@ -215,7 +215,7 @@ export default function SellOrStorePage() {
           </div>
 
           {/* Reasoning transparency */}
-          <div className="card">
+          <div className="card card-hover anim-fade-in-up stagger-3">
             <div className="flex items-start gap-2">
               <AlertTriangle size={15} className="text-amber-500 flex-shrink-0 mt-0.5" />
               <div>
@@ -228,7 +228,7 @@ export default function SellOrStorePage() {
 
           {/* Best Buyer */}
           {result.best_buyer && (
-            <div className="card border-primary/30">
+            <div className="card border-primary/30 card-hover anim-fade-in-up stagger-4">
               <h2 className="font-semibold mb-3 flex items-center gap-2"><Users size={16} className="text-primary" /> Best Matched Buyer</h2>
               <div className="flex items-center justify-between">
                 <div>
