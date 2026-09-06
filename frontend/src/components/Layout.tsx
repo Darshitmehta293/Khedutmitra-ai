@@ -47,17 +47,22 @@ export default function Layout() {
   ]
 
   return (
-    <div className="min-h-screen bg-surface flex">
+    <div className="min-h-screen bg-surface dark:bg-gray-950 flex transition-colors duration-300">
       {/* Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 bg-[#fbfcf9]/95 border-r border-[#dce7dd] fixed h-full z-20">
-        <div className="p-5 border-b border-[#dce7dd]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-sm shadow-primary/25">
-              <Leaf className="w-5 h-5 text-white" />
+      <aside className="hidden md:flex flex-col w-64 bg-white/80 dark:bg-gray-950/80 backdrop-blur-2xl border-r border-emerald-500/10 dark:border-emerald-500/20 fixed h-full z-20 shadow-[4_0_24px_rgba(0,0,0,0.02)]">
+        <div className="p-5 border-b border-emerald-500/10 dark:border-emerald-500/20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-tr from-emerald-600 via-teal-500 to-green-400 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
+              <Leaf className="w-5.5 h-5.5 text-white" />
             </div>
             <div>
-              <div className="font-bold text-gray-900 text-sm leading-tight tracking-tight">KhedutMitra</div>
-              <div className="text-[10px] text-primary/70 uppercase tracking-[0.16em] mt-1">Farmer intelligence</div>
+              <div className="font-black text-gray-900 dark:text-gray-100 text-base leading-tight tracking-tight flex items-center gap-1.5">
+                KhedutMitra <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">AI</span>
+              </div>
+              <div className="flex items-center gap-1.5 mt-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Agent Network Online</span>
+              </div>
             </div>
           </div>
         </div>
@@ -66,8 +71,10 @@ export default function Layout() {
             <NavLink
               key={to} to={to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                  isActive ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-gray-600 hover:bg-primary/5 hover:text-primary'
+                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                  isActive
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25 scale-[1.01]'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400'
                 }`
               }
             >
@@ -76,20 +83,26 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
-        <div className="p-4 border-t border-[#dce7dd]">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
+        <div className="p-4 border-t border-emerald-500/10 dark:border-emerald-500/20 space-y-3">
+          <div className="bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/15 rounded-xl p-2.5 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold">
+              <Sparkles size={13} /> IBM Granite 13B
+            </div>
+            <span className="text-[10px] bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-extrabold px-1.5 py-0.5 rounded">6 Agents</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white font-black text-sm shadow-sm">
               {user?.name?.[0] || 'U'}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900 truncate">{user?.name}</div>
-              <div className="text-xs text-gray-400 capitalize">{user?.role}</div>
+              <div className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{user?.name}</div>
+              <div className="text-xs text-gray-400 dark:text-gray-500 capitalize">{user?.role}</div>
             </div>
           </div>
           <div className="flex items-center justify-between gap-2"><LanguageSwitcher />{themeButton}</div>
           <button onClick={() => { logout(); navigate('/') }}
-            className="mt-2 flex items-center gap-2 text-sm text-gray-500 hover:text-red-500 transition-colors">
-            <LogOut size={15} /> {t('nav.logout')}
+            className="mt-1 flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+            <LogOut size={14} /> {t('nav.logout')}
           </button>
         </div>
       </aside>
