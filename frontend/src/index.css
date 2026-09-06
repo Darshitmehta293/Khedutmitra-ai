@@ -4,6 +4,7 @@
 
 @layer base {
   :root { color-scheme: light; }
+  html { scroll-behavior: smooth; }
   body {
     @apply bg-surface text-gray-900 font-sans antialiased;
     background-image: linear-gradient(rgba(26, 122, 74, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(26, 122, 74, 0.025) 1px, transparent 1px);

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Leaf, TrendingUp, Users, MessageSquare, ArrowRight, Info, Mail, Github } from 'lucide-react'
@@ -7,6 +7,17 @@ import LanguageSwitcher from '../components/LanguageSwitcher'
 export default function LandingPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [scrollY, setScrollY] = useState(0)
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const heroOpacity = Math.max(0, 1 - scrollY / 500)
+  const heroTranslate = Math.min(scrollY * 0.3, 80)
+  const bgScale = 1 + scrollY * 0.0003
 
   return (
     <div className="min-h-screen bg-white">
@@ -38,12 +49,13 @@ export default function LandingPage() {
           <img
             src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2574&auto=format&fit=crop"
             alt="cinematic farm crops"
-            className="w-full h-full object-cover cinematic-bg"
+            className="w-full h-full object-cover cinematic-bg will-change-transform"
+            style={{ transform: `scale(${bgScale})` }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto hero-enter">
+        <div className="relative z-10 max-w-4xl mx-auto hero-enter will-change-transform" style={{ opacity: heroOpacity, transform: `translateY(${heroTranslate}px)` }}>
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium px-4 py-1.5 rounded-full mb-6">
             <Leaf size={14} /> IBM Granite + AI Agents
           </div>
