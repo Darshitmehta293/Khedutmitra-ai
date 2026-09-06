@@ -59,7 +59,7 @@ export default function LandingPage() {
               <span className="relative z-10 flex items-center gap-2">Start Selling Smarter <ArrowRight size={18} /></span>
               <span className="absolute inset-0 shimmer-bg opacity-30" />
             </button>
-            <button onClick={() => navigate('/demo')} className="btn-manus-secondary flex items-center justify-center gap-2 text-white border-white/30 hover:bg-white/10">
+            <button onClick={() => navigate('/demo')} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/40 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/60 active:scale-[.98]">
               <span className="relative z-10 flex items-center gap-2">Watch Demo Scenario</span>
             </button>
           </div>
