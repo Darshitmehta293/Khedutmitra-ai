@@ -13,7 +13,13 @@ export default function Layout() {
   const { t } = useTranslation()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('km_theme') === 'dark')
+  const [darkMode, setDarkMode] = useState(() => {
+    const stored = localStorage.getItem('km_theme')
+    const isDark = stored === 'dark'
+    // Sync immediately so there's no flash on first render
+    document.documentElement.classList.toggle('dark', isDark)
+    return isDark
+  })
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
