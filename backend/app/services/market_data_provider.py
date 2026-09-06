@@ -8,7 +8,7 @@ from __future__ import annotations
 import abc
 import random
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 import httpx
 from app.core.logging import logger
 
@@ -193,7 +193,11 @@ class MockMarketDataProvider(MarketDataProvider):
     """
     Realistic demo data provider using seeded Gujarat market prices.
     All data is clearly marked is_demo=True.
+    Includes in-memory caching for zero latency.
     """
+
+    def __init__(self):
+        self._cache: Dict[str, Tuple[datetime, Any]] = {}
 
     def _market_key(self, market_id: str) -> str:
         return market_id.replace("mkt_", "").lower()
@@ -213,9 +217,16 @@ class MockMarketDataProvider(MarketDataProvider):
         return round(base * (1 + pct), 2)
 
     async def get_current_prices(self, crop_id: str, market_id: Optional[str] = None) -> List[MarketPriceData]:
+        cache_key = f"current_{crop_id}_{market_id or 'all'}"
+        now = datetime.utcnow()
+        if cache_key in self._cache:
+            ts, cached_val = self._cache[cache_key]
+            if (now - ts).total_seconds() < 60:
+                return cached_val
+
         markets = [m for m in DEMO_MARKETS if market_id is None or m["id"] == market_id]
         results = []
-        today = datetime.utcnow().replace(hour=10, minute=0, second=0, microsecond=0)
+        today = now.replace(hour=10, minute=0, second=0, microsecond=0)
         for m in markets:
             base = self._base_price(crop_id, m["id"])
             modal = self._daily_variation(base, hash(m["id"] + crop_id), 0)
@@ -230,6 +241,7 @@ class MockMarketDataProvider(MarketDataProvider):
                 source="demo_data",
                 is_demo=True,
             ))
+        self._cache[cache_key] = (now, results)
         return results
 
     async def get_historical_prices(self, crop_id: str, market_id: str, days: int = 30) -> List[MarketPriceData]:

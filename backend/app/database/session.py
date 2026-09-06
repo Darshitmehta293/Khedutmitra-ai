@@ -12,7 +12,7 @@ from app.core.config import settings
 
 # SQLite needs connect_args check_same_thread=False; PostgreSQL uses pool settings
 _is_sqlite = settings.DATABASE_URL.startswith("sqlite")
-_engine_kwargs: dict = {"echo": (settings.APP_ENV == "development")}
+_engine_kwargs: dict = {"echo": False}
 if _is_sqlite:
     _engine_kwargs["connect_args"] = {"check_same_thread": False}
 else:
