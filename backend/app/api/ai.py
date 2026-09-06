@@ -12,7 +12,7 @@ from sqlalchemy.orm import selectinload
 
 from app.database.session import get_db
 from app.api.deps import get_current_user, require_farmer
-from app.models.models import User, Recommendation, Conversation, Message, QualityAssessment, Language
+from app.models.models import User, Recommendation, Conversation, Message, QualityAssessment, Language, RecommendationAction
 from app.agents.orchestrator import get_orchestrator
 from app.schemas.schemas import ChatRequest, RecommendationRequest
 from app.core.config import settings
@@ -173,28 +173,40 @@ async def get_recommendation(
         language=current_user.language.value,
         inventory_id=payload.inventory_id,
     )
-    stored = Recommendation(
-        farmer_id=current_user.id,
-        inventory_id=payload.inventory_id,
-        action=result.get("action", "SELL_NOW"),
-        recommended_days=result.get("recommended_days"),
-        current_revenue=result.get("current_revenue"),
-        expected_future_revenue=result.get("expected_future_revenue"),
-        storage_cost=result.get("storage_cost"),
-        transport_cost=result.get("transport_cost"),
-        quality_loss_cost=result.get("quality_loss_cost"),
-        expected_net_revenue=result.get("expected_net_revenue"),
-        potential_gain=result.get("potential_gain"),
-        confidence=result.get("confidence"),
-        explanation=result.get("reasoning"),
-        explanation_gu=result.get("granite_explanation") if current_user.language.value == "gu" else None,
-        explanation_hi=result.get("granite_explanation") if current_user.language.value == "hi" else None,
-        agent_trace=json.dumps(result.get("agent_trace", []), default=str),
-    )
-    db.add(stored)
-    await db.commit()
-    response = _safe(result)
-    response["recommendation_id"] = stored.id
+    # Cast action string to enum safely
+    try:
+        action_enum = RecommendationAction(result.get("action", "SELL_NOW"))
+    except ValueError:
+        action_enum = RecommendationAction.SELL_NOW
+
+    try:
+        stored = Recommendation(
+            farmer_id=current_user.id,
+            inventory_id=payload.inventory_id,
+            action=action_enum,
+            recommended_days=result.get("recommended_days"),
+            current_revenue=result.get("current_revenue"),
+            expected_future_revenue=result.get("expected_future_revenue"),
+            storage_cost=result.get("storage_cost"),
+            transport_cost=result.get("transport_cost"),
+            quality_loss_cost=result.get("quality_loss_cost"),
+            expected_net_revenue=result.get("expected_net_revenue"),
+            potential_gain=result.get("potential_gain"),
+            confidence=result.get("confidence"),
+            explanation=result.get("reasoning"),
+            explanation_gu=result.get("granite_explanation") if current_user.language.value == "gu" else None,
+            explanation_hi=result.get("granite_explanation") if current_user.language.value == "hi" else None,
+            agent_trace=json.dumps(result.get("agent_trace", []), default=str),
+        )
+        db.add(stored)
+        await db.commit()
+        await db.refresh(stored)
+        response = _safe(result)
+        response["recommendation_id"] = stored.id
+    except Exception as e:
+        logger.warning("Failed to persist recommendation to DB", error=str(e))
+        response = _safe(result)
+        response["recommendation_id"] = None
     return response
 
 

@@ -101,36 +101,36 @@ export default function SellOrStorePage() {
       <div className="card">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Crop</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Crop</label>
             <select value={form.crop_id} onChange={e => set('crop_id', e.target.value)} className="select-field">
               {CROPS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('sell_store.quantity')}</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('sell_store.quantity')}</label>
             <input value={form.quantity} onChange={e => set('quantity', e.target.value)}
               type="number" min="1" className="input-field" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('sell_store.quality_grade')}</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('sell_store.quality_grade')}</label>
             <select value={form.quality_grade} onChange={e => set('quality_grade', e.target.value)} className="select-field">
               {GRADES.map(g => <option key={g} value={g}>Grade {g.toUpperCase()}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">District</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">District</label>
             <select value={form.district} onChange={e => set('district', e.target.value)} className="select-field">
               {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('sell_store.horizon')}</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('sell_store.horizon')}</label>
             <select value={form.horizon_days} onChange={e => set('horizon_days', e.target.value)} className="select-field">
               {[3, 7, 15, 30].map(d => <option key={d} value={d}>{d} days</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('sell_store.transport_cost')}</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('sell_store.transport_cost')}</label>
             <input value={form.transport_cost_total} onChange={e => set('transport_cost_total', e.target.value)}
               type="number" className="input-field" />
           </div>
@@ -138,7 +138,7 @@ export default function SellOrStorePage() {
         <div className="mt-4 flex items-center gap-3">
           <input type="checkbox" id="storage" checked={form.storage_available}
             onChange={e => set('storage_available', e.target.checked)} className="w-4 h-4 accent-primary" />
-          <label htmlFor="storage" className="text-sm text-gray-700">{t('sell_store.storage_available')}</label>
+          <label htmlFor="storage" className="text-sm text-gray-700 dark:text-gray-300">{t('sell_store.storage_available')}</label>
         </div>
         <button onClick={analyze} disabled={loading} className="btn-primary w-full mt-4 flex items-center justify-center gap-2">
           {loading ? <><Loader2 size={16} className="animate-spin" /> Analyzing...</> : t('sell_store.analyze_btn')}
@@ -149,7 +149,7 @@ export default function SellOrStorePage() {
       {result && (
         <div className="space-y-4">
           {/* Recommendation Hero */}
-          <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-green-100">
+          <div className="card bg-gradient-to-br from-green-50 to-emerald-900/20 dark:from-emerald-900/30 dark:to-teal-900/20 border-green-100 dark:border-emerald-700/30">
             <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
               <div>
                 <div className="text-sm text-gray-500 mb-2">AI Recommendation</div>
@@ -204,7 +204,7 @@ export default function SellOrStorePage() {
           </div>
 
           {/* Granite Explanation */}
-          <div className="card border-blue-100 bg-blue-50">
+          <div className="card border-blue-100 dark:border-blue-800/40 bg-blue-50 dark:bg-blue-900/20">
             <div className="flex items-start gap-2">
               <Info size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />
               <div>
